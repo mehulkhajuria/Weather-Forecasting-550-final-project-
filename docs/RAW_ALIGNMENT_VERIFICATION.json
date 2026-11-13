@@ -1,0 +1,1353 @@
+{
+  "goes_checks": [
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T115618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 233.7301788330078,
+      "processed_kelvin": 233.7301788330078,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T115618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 235.2119598388672,
+      "processed_kelvin": 235.21197509765625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T115618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 226.68692016601562,
+      "processed_kelvin": 226.68690490722656,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T125618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 237.2724151611328,
+      "processed_kelvin": 237.27239990234375,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T125618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 231.46322631835938,
+      "processed_kelvin": 231.4632110595703,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T125618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 229.90020751953125,
+      "processed_kelvin": 229.90023803710938,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T135618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 243.80023193359375,
+      "processed_kelvin": 243.80032348632812,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T135618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 237.63656616210938,
+      "processed_kelvin": 237.63656616210938,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T135618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 234.9532928466797,
+      "processed_kelvin": 234.95333862304688,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T145618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 235.22837829589844,
+      "processed_kelvin": 235.22842407226562,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T145618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 250.39488220214844,
+      "processed_kelvin": 250.39474487304688,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T145618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 225.14341735839844,
+      "processed_kelvin": 225.14341735839844,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T155618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 228.40701293945312,
+      "processed_kelvin": 228.40707397460938,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T155618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 228.03973388671875,
+      "processed_kelvin": 228.0397186279297,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T155618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 236.91647338867188,
+      "processed_kelvin": 236.91651916503906,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T165618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 221.83926391601562,
+      "processed_kelvin": 221.83926391601562,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T165618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 237.80844116210938,
+      "processed_kelvin": 237.80848693847656,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T165618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 246.79335021972656,
+      "processed_kelvin": 246.79342651367188,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T175618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 226.29698181152344,
+      "processed_kelvin": 226.29705810546875,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T175618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 237.38394165039062,
+      "processed_kelvin": 237.3839111328125,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T175618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 239.57081604003906,
+      "processed_kelvin": 239.57077026367188,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T185618Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 229.63934326171875,
+      "processed_kelvin": 229.63937377929688,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T185618Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 234.4127197265625,
+      "processed_kelvin": 234.4127197265625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261011T185618Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 246.49888610839844,
+      "processed_kelvin": 246.49900817871094,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T125617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 282.3746643066406,
+      "processed_kelvin": 282.3747863769531,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T125617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 284.2259826660156,
+      "processed_kelvin": 284.2259521484375,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T125617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 274.9787292480469,
+      "processed_kelvin": 274.978759765625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T135617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 284.9038391113281,
+      "processed_kelvin": 284.9039306640625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T135617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 287.03326416015625,
+      "processed_kelvin": 287.03326416015625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T135617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 242.741943359375,
+      "processed_kelvin": 242.74197387695312,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T145617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 287.6781005859375,
+      "processed_kelvin": 287.6781921386719,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T145617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 289.2459716796875,
+      "processed_kelvin": 289.2459716796875,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T145617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 250.39236450195312,
+      "processed_kelvin": 250.3922576904297,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T155617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 290.0994873046875,
+      "processed_kelvin": 290.0995788574219,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T155617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 291.2740478515625,
+      "processed_kelvin": 291.2740478515625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T155617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 251.7152099609375,
+      "processed_kelvin": 251.7152557373047,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T165617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 292.1658935546875,
+      "processed_kelvin": 292.1659851074219,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T165617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 292.7485046386719,
+      "processed_kelvin": 292.74853515625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T165617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 246.76193237304688,
+      "processed_kelvin": 246.76194763183594,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T175617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 291.54168701171875,
+      "processed_kelvin": 291.5417785644531,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T175617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 292.31903076171875,
+      "processed_kelvin": 292.31903076171875,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T175617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 278.3966064453125,
+      "processed_kelvin": 278.3966369628906,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T185617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 290.90875244140625,
+      "processed_kelvin": 290.9088134765625,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T185617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 291.54486083984375,
+      "processed_kelvin": 291.54486083984375,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T185617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 288.02569580078125,
+      "processed_kelvin": 288.0257568359375,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T195617Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "raw_bilinear_kelvin": 289.7681579589844,
+      "processed_kelvin": 289.7682189941406,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T195617Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "raw_bilinear_kelvin": 290.4386901855469,
+      "processed_kelvin": 290.4386901855469,
+      "all_four_DQF_zero": true
+    },
+    {
+      "file": "data\\processed\\goes\\GOES19_C13_20261020T195617Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "raw_bilinear_kelvin": 288.3163757324219,
+      "processed_kelvin": 288.3163757324219,
+      "all_four_DQF_zero": true
+    }
+  ],
+  "goes_count": 48,
+  "method": "ecCodes four nearest raw GRIB cells; value must match a nearest cell within 1m tie tolerance; independent of axis reconstruction",
+  "checks": [
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T150000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.20500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 7.4,
+      "processed_mm": 7.400000095367432,
+      "distance_above_minimum_m": 0.14970186681406705
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T150000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 1.0,
+      "processed_mm": 1.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T150000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T160000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.20500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 4.5,
+      "processed_mm": 4.5,
+      "distance_above_minimum_m": 0.14970186681406705
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T160000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 2.7,
+      "processed_mm": 2.700000047683716,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T160000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        286.9949983714483
+      ],
+      "raw_mm": 0.8,
+      "processed_mm": 0.800000011920929,
+      "distance_above_minimum_m": 0.3246610036778952
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T170000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.20500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 6.1000000000000005,
+      "processed_mm": 6.099999904632568,
+      "distance_above_minimum_m": 0.14970186681406705
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T170000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 4.2,
+      "processed_mm": 4.199999809265137,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T170000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.6000000000000001,
+      "processed_mm": 0.6000000238418579,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T180000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.20500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 8.8,
+      "processed_mm": 8.800000190734863,
+      "distance_above_minimum_m": 0.14970186681406705
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T180000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 2.2,
+      "processed_mm": 2.200000047683716,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T180000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.20500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T190000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.20500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 5.2,
+      "processed_mm": 5.199999809265137,
+      "distance_above_minimum_m": 0.14970186681406705
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T190000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 3.2,
+      "processed_mm": 3.200000047683716,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T190000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.6000000000000001,
+      "processed_mm": 0.6000000238418579,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T200000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.20500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 7.7,
+      "processed_mm": 7.699999809265137,
+      "distance_above_minimum_m": 0.14970186681406705
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T200000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 3.8000000000000003,
+      "processed_mm": 3.799999952316284,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T200000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.20500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 1.3,
+      "processed_mm": 1.2999999523162842,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T210000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 1.9000000000000001,
+      "processed_mm": 1.899999976158142,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T210000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 2.2,
+      "processed_mm": 2.200000047683716,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T210000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.20500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 1.0,
+      "processed_mm": 1.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T220000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.20500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 1.2000000000000002,
+      "processed_mm": 1.2000000476837158,
+      "distance_above_minimum_m": 0.14970186681406705
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T220000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 13.600000000000001,
+      "processed_mm": 13.600000381469727,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261011T220000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T160000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T160000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T160000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T170000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T170000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T170000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T180000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T180000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T180000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T190000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T190000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T190000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T200000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T200000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T200000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T210000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T210000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T210000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T220000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T220000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T220000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T230000Z.npz",
+      "pixel": [
+        0,
+        0
+      ],
+      "target_lat_lon": [
+        41.20000076293945,
+        -75.30000305175781
+      ],
+      "raw_nearest_lat_lon": [
+        41.19500000000274,
+        284.70499843688754
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.30441301472894366
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T230000Z.npz",
+      "pixel": [
+        15,
+        15
+      ],
+      "target_lat_lon": [
+        40.23225784301758,
+        -74.18709564208984
+      ],
+      "raw_nearest_lat_lon": [
+        40.235000000002934,
+        285.81499840516807
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.0
+    },
+    {
+      "file": "data\\processed\\mrms\\MRMS_QPE01H_20261020T230000Z.npz",
+      "pixel": [
+        31,
+        31
+      ],
+      "target_lat_lon": [
+        39.20000076293945,
+        -73.0
+      ],
+      "raw_nearest_lat_lon": [
+        39.19500000000314,
+        287.0049983711625
+      ],
+      "raw_mm": 0.0,
+      "processed_mm": 0.0,
+      "distance_above_minimum_m": 0.15282443295505654
+    }
+  ],
+  "count": 48
+}

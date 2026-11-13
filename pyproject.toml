@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cs550-weather-data"
+version = "0.3.0"
+description = "Leakage-conscious weather observation acquisition and numerical model input preparation for Rutgers CS550"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "requests>=2.31,<3",
+]
+
+[project.optional-dependencies]
+satellite = ["xarray>=2025.1", "h5netcdf>=1.5", "h5py>=3.12", "pyproj>=3.6", "scipy>=1.15,<2"]
+radar = ["eccodes>=2.47,<3"]
+dev = ["pytest>=8,<10"]
+all = ["xarray>=2025.1", "h5netcdf>=1.5", "h5py>=3.12", "pyproj>=3.6", "scipy>=1.15,<2", "eccodes>=2.47,<3", "pytest>=8,<10"]
+
+[project.scripts]
+weather550 = "weather550.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 99
