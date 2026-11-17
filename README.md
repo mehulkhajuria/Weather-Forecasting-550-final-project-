@@ -1,120 +1,103 @@
-> **Verified v0.3 handoff:** Start with [real dataset results and regeneration commands](docs/REAL_DATA_HANDOFF.md). Twelve real rainy/dry samples have been produced on Windows/Python 3.13. The v0.2 material below describes the original numerical-only starter; use the handoff for the current supervised contract and availability limitations.
->
-> **Environment setup:** Read [docs/ENVIRONMENTS.md](docs/ENVIRONMENTS.md) for Windows, Rutgers iLab, and Amarel setup. Each computer creates its own `.venv`.
+# CS550 Weather Forecasting
 
-# CS550 Weather Data — Starter (v0.2.1)
+This repository handles the data side of our CS550 project, *Fourier-Based Weather Prediction by Combining Satellite Imagery and Numerical Observations*. It collects satellite imagery, station observations, and precipitation measurements, then processes them into matching grids and time windows for the models. Keeping this separate from the model lets us try the satellite-only, direct numerical-feature, and precipitation-overlay approaches using the same inputs and targets.
 
-**Purpose:** a small, auditable Rutgers CS550 data pipeline for the proposal *Fourier-Based Weather Prediction by Combining Satellite Imagery and Numerical Observations*. It is also structured so observation-processing code can later be reused by **OpenSky GroundNet** in a separate integration.
+Right now we have 12 real samples that have been downloaded, aligned, and verified: six rainy samples from October 11, 2026, and six dry samples from October 20, 2026. These are enough to start checking model inputs and integrating the models. They are still a pilot dataset, so we need more independent weather events before using this for training and evaluation. The data pipeline already downloads and decodes all three sources, builds the numerical grids, and joins the satellite history with future precipitation targets. Model training is separate.
 
-**Current scope:** download and clean historical station measurements from IEM ASOS; prepare a numerical-model input tensor with UTC, physical units, masks and geographic grid coordinates; optionally download **one** NOAA GOES-19 ABI Band 13 (infrared) NetCDF file and resample it onto the same geographic grid. The included demo is fully offline and **explicitly synthetic**. It does **not** yet build radar precipitation targets or a complete synchronized satellite sequence: this is a real first implementation step, not a trained forecast model.
+## Data and preprocessing
 
-[Quickstart for Windows / Git / GitHub](QUICKSTART_WINDOWS.md) · [Tensor contract](docs/DATA_CONTRACT.md) · [Phased roadmap](docs/ROADMAP.md)
+| Source | What we use |
+|---|---|
+| [NOAA GOES-19 public archive](https://registry.opendata.aws/noaa-goes/) | ABI-L2-CMIPC Band 13 imagery from `noaa-goes19.s3.amazonaws.com`, stored as brightness temperature in Kelvin |
+| [Iowa Environmental Mesonet ASOS/METAR](https://mesonet.agron.iastate.edu/request/download.phtml) | Observations from TTN and EWR, downloaded through IEM's ASOS CSV service |
+| [IEM historical MRMS archive](https://mtarchive.geol.iastate.edu/2026/10/11/mrms/ncep/MultiSensor_QPE_01H_Pass2/) | NOAA `MultiSensor_QPE_01H_Pass2` hourly precipitation accumulations in mm, decoded from GRIB2 with ecCodes |
 
-## One-screen start (PowerShell in this folder)
+The grid covers New Jersey and nearby areas, from 39.2 to 41.2 degrees north and -75.3 to -73.0 degrees longitude. All three sources use the same 32x32 latitude/longitude grid, with north in the first row. The verified forecast issuance times are October 11 at 14:00 through 19:00 UTC and October 20 at 15:00 through 20:00 UTC, in hourly steps. August through October 2026 is the candidate study period; we have not verified or downloaded that entire period.
+
+The numerical features, in order, are `temperature_c`, `dewpoint_c`, `humidity_pct`, `wind_speed_mps`, and `pressure_hpa`. The ASOS parser converts Fahrenheit to Celsius and knots to m/s, preserves missing measurements, and applies basic range checks. These are station observations mapped onto the grid using inverse-distance weights within 110 km, rather than a full numerical weather analysis. Solar irradiance is not included because these station records do not provide it reliably.
+
+Each sample uses history ticks at `t-2h`, `t-1h`, and `t`. At each tick, GOES selection checks that the scan was published by then and is no more than 20 minutes old. Imagery is reprojected using the NetCDF projection metadata, and every pixel contributing to bilinear interpolation must have a valid DQF flag. Station selection uses the latest reading at least 10 minutes before the tick and no more than 90 minutes old. IEM does not include historical receipt timestamps here, so the 10-minute reporting delay is an assumption, not proof that every report had arrived by then.
+
+MRMS is resampled to that same grid with nearest-neighbor sampling. The decoder checks the grid geometry, valid time, and NOAA product identity. ecCodes reports the local parameter's units as `unknown`, so the exact centre 161 / discipline 209 / category 6 / parameter 37 identity is checked against the [NOAA MRMS table](https://www.nssl.noaa.gov/projects/mrms/operational/tables.php), which defines this product as one-hour accumulation in mm. Pass2 is delayed quality-controlled data and is used only for targets.
+
+## Setup and tests
+
+Clone the repository and run these commands from its root in PowerShell. Python 3.13 is the verified Windows environment; the package supports Python 3.11 or newer. Each machine needs its own virtual environment.
 
 ```powershell
+git clone https://github.com/mehulkhajuria/Weather-Forecasting-550-final-project-.git
+cd Weather-Forecasting-550-final-project-
 py -3.13 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements-lock-windows-py313.txt
 .\.venv\Scripts\python.exe -m pip install -e ".[all]"
-.\.venv\Scripts\python.exe -m pytest
-.\.venv\Scripts\weather550.exe demo --out data/demo
+.\.venv\Scripts\python.exe -m pip check
+.\.venv\Scripts\python.exe -m pytest -q -W error
 ```
 
-If `py -3.13` is not found, use `py -3.12` or `py -3.11`; a supported Python **3.11 or newer** is required. No activation or PowerShell execution-policy modification is required.
+The lock file records the verified Windows Python 3.13 dependencies, including SciPy, the HDF5 backend, and ecCodes. On Linux, create a local environment with `python3 -m venv .venv`, install `.[all]` with `.venv/bin/python`, and use that interpreter for the same checks. The existing `scripts/setup_linux.sh` and `scripts/verify_linux.sh` are also available.
 
-Expected result: tests pass and `data/demo/SYNTHETIC_numeric.npz` contains **46 samples × 3 time steps × 5 numerical variables × 32 × 32 pixels**, plus a per-element validity mask. The demo is not research data.
+The offline suite has 37 tests covering parsing, units, missing values, geometry, temporal alignment, future-label placement, leakage checks, and tensor shapes. The real-data verification also checked 48 GOES and 48 MRMS locations against the raw files. [The dataset manifest](docs/REAL_DATA_VERIFICATION.json) records coverage and checksums, and [the alignment results](docs/RAW_ALIGNMENT_VERIFICATION.json) record those raw-file comparisons.
 
-### Fetch a small *real* ASOS station sample (Internet required)
+## Getting the data
+
+Raw files, processed arrays, and the handoff ZIP are excluded from Git, so cloning the repo does not download the dataset. If you already have `teammate_handoff.zip`, place it under `data/processed`, extract it there, and run the loading example:
 
 ```powershell
-.\.venv\Scripts\weather550.exe fetch-asos --stations TTN EWR --start 2026-10-20T00:00:00Z --end 2026-10-22T00:00:00Z
-.\.venv\Scripts\weather550.exe prepare-numeric --stations data/processed/stations_utc.csv --start 2026-10-20T00:00:00Z --end 2026-10-22T00:00:00Z
+Expand-Archive -LiteralPath data/processed/teammate_handoff.zip -DestinationPath data/processed -Force
+.\.venv\Scripts\python.exe scripts/load_dataset.py data/processed/supervised.npz
 ```
 
-Output: `data/raw/iem_asos.csv`, `data/processed/stations_utc.csv`, and `data/processed/model_numeric.npz`. Their metadata JSON files show station coverage and validity. ASOS observations are **sparse** and do not necessarily include direct solar radiation. Failed/empty retrievals exit with an error instead of fabricating data. If the IEM returns no coverage for one station/date, adjust the station/date and inspect the `.request.json` metadata.
-
-### Fetch a small *real* GOES sample (Internet required)
+To obtain the original data and reproduce the pilot instead, start by listing the source files for the initial test case. The regeneration script then runs the bounded station requests and two six-issuance batches, builds the tensors, checks raw alignment, and packages the handoff.
 
 ```powershell
-# First list a candidate GOES-19 C13 CONUS scene WITHOUT downloading:
-.\.venv\Scripts\weather550.exe fetch-goes --at 2026-10-20T18:00:00Z --list-only
-
-# Then download and reproject just ONE scene:
-.\.venv\Scripts\weather550.exe fetch-goes --at 2026-10-20T18:00:00Z
+.\.venv\Scripts\weather550.exe fetch-sample --at 2026-10-20T18:00:00Z --list-only
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/regenerate_real_subset.ps1
 ```
 
-Files: one raw `.nc` under `data/raw/goes/` (capped at 120 MiB), and a 32×32 scene under `data/processed/goes_C13.npz`. No AWS credentials required; anonymous NOAA public S3. It uses actual GOES geostationary projection metadata, not a guessed latitude/longitude mapping. Cloud/quality mask is preserved; invalid values are zero *with mask false*. One scene is **not yet** a satellite sequence, and brightness temperature is **not** precipitation.
+The exact source requests are in `scripts/regenerate_real_subset.ps1`. ASOS requests cover October 10 through 17 and October 20 through 21, with exclusive midnight end dates. GOES history and MRMS targets are downloaded only for the selected forecast windows. Raw data go under `data/raw`; station CSVs, processed scenes, batch audit logs, and final arrays go under `data/processed`. Downloads are cached. If IEM returns HTTP 429, keep the existing files and retry after the provider's requested delay.
 
-If you get a network or remote-bucket error, leave the raw data unchanged, record the console output, and continue with `demo` and local tests. Live network retrieval was **not run by the authoring environment**.
+If the station CSVs and processed source scenes are already present, rebuilding and loading need no network access:
 
-## Commands
-
-```text
-weather550 demo            Offline synthetic end-to-end numerical pipeline
-weather550 fetch-asos      Real IEM historical station download and conversion
-weather550 convert-asos    Offline re-parse an already downloaded IEM CSV
-weather550 prepare-numeric Causal historical station-window tensor generation
-weather550 fetch-goes      Public NOAA GOES Band-13 single-scene retrieval / reprojection
+```powershell
+.\.venv\Scripts\python.exe scripts/build_delivery.py
+.\.venv\Scripts\python.exe scripts/verify_real_alignment.py
+.\.venv\Scripts\python.exe scripts/load_dataset.py data/processed/supervised.npz
 ```
 
-Run `weather550 <command> --help` for every argument.
+The delivery builder is intentionally set to the two pilot periods and expects 12 complete samples. It produces `supervised.npz`, its source-summary JSON, and `teammate_handoff.zip`. The ZIP includes the dataset, metadata, this README, and a standalone loading example. The general CLI also has `fetch-asos`, `fetch-goes`, `fetch-mrms`, `prepare-numeric`, `fetch-batch`, and `build-supervised` commands; use `--help` for their arguments.
 
-## Numerical model contract
+## Using the tensors
+
+`data/processed/supervised.npz` contains the following arrays, with `N=12` for the pilot:
+
+| Array | Shape and contents |
+|---|---|
+| `X_goes` | `(N,3,1,32,32)`, float32 C13 brightness temperatures in K |
+| `X_numerical` | `(N,3,5,32,32)`, float32 features in the order listed above |
+| `Y_rain_mm` | `(N,2,32,32)`, float32 hourly precipitation accumulations |
+| `X_goes_mask`, `X_num_mask`, `Y_rain_mask` | Boolean validity masks matching their corresponding arrays |
+| `lat_grid`, `lon_grid` | `(32,32)`, grid coordinates in degrees north/east |
+| `issuance_times_utc`, `forecast_horizons_hours`, `feature_names` | Sample times, horizons `[1,3]`, and numerical feature order |
+| `goes_scan_times_utc`, `goes_available_times_utc` | `(N,3)`, scan starts and S3 publication timestamps |
+| `latest_station_observation_times_utc`, `rain_valid_end_times_utc` | `(N,3)` latest selected station times and `(N,2)` target end times |
+| `source_metadata_json`, `source_station_files` | Per-sample source URLs and paths, plus station CSV paths |
+| `observation_latency_minutes`, `max_observation_age_minutes` | Reporting-delay assumption of 10 minutes and age limit of 90 minutes |
+
+Target index 0 is the rainfall during `(t,t+1h]`. Target index 1 is rainfall during `(t+2h,t+3h]`, so it is the one-hour amount ending at +3h, not the cumulative rainfall over three hours.
+
+Some numerical measurements and grid locations have no support, so invalid cells are stored as zero with the mask set to false. Use the masks so those placeholders are not treated as measured zero values. In the pilot, satellite and target validity are 100%, while numerical validity is about 76.8%. All 12 selected samples passed the join. A rainy sample has at least one positive target pixel; a dry sample has all target cells valid and zero.
 
 ```python
 import numpy as np
-batch = np.load('data/processed/model_numeric.npz')
-X = batch['X_numerical']        # [N,T,F,H,W], float32, physical units
-mask = batch['X_mask']         # [N,T,F,H,W], bool; True = has data support
-lat = batch['lat_grid']        # [H,W], degrees north
-lon = batch['lon_grid']        # [H,W], degrees east
-names = batch['feature_names'] # [F]
-times = batch['issuance_times_utc']
+
+with np.load('data/processed/supervised.npz', allow_pickle=False) as data:
+    X_goes = data['X_goes']
+    X_numerical = data['X_numerical']
+    Y_rain_mm = data['Y_rain_mm']
+    goes_valid = data['X_goes_mask']
+    numerical_valid = data['X_num_mask']
+    rain_valid = data['Y_rain_mask']
+    times = data['issuance_times_utc']
 ```
 
-Feature order: `temperature_c`, `dewpoint_c`, `humidity_pct`, `wind_speed_mps`, `pressure_hpa`. Zeros in invalid places are placeholders; **never treat them as genuine zero measurements**. Pass the mask to the teammate's network, or use explicitly mask-aware imputation.
-
-**The output is not model-supervised precipitation data yet.** The authoritative proposal requires future radar-based precipitation fields at **+60 and +180 min**, GOES image sequences, matched windows, chronological splits and forward-chaining out-of-fold overlays. We will build those after the first real observation and one-scene satellite test pass.
-
-## Design safeguards
-
-- All times UTC. Issuance-history logic only takes station readings `<= issuance_time`, with a maximum observation-age gate.
-- Bounding box is `[south,west,north,east]`, shared by numerical tensor and GOES crop. First row is the **northern** row.
-- Station variables are distance-weighted to form a **station-conditioned input representation**, not a physical weather analysis. `X_mask` and `nearest_station_km` preserve coverage limits.
-- Data download caps prevent accidentally acquiring hundreds of gigs. For research training, collect more events in *bounded batches*, not one unlimited scrape.
-- No train/val/test scaler is fitted in this first step; that belongs in the later chronological-split pipeline and must be fit on training only.
-- No credentials, HA data, access tokens or arbitrary raw downloads should be committed to the class repository.
-
-## Structure
-
-```text
-src/weather550/
-  asos.py        IEM ASOS request/parse/units/QC
-  goes.py        GOES public S3 listing/download + projection-correct sample
-  numerical.py   UTC-causal station windows, IDW pseudo-fields and masks
-  demo.py        SYNTHETIC offline fixture
-  cli.py         Command line
-  timeutil.py    timezone-aware utilities
-tests/             No-network unit and integration tests
-scripts/           Optional Windows setup/test scripts
-docs/              Source contract, next steps, collaboration notes
-data/raw/          Ignored downloaded source files
-data/processed/    Ignored derived files
-```
-
-## Data providers and attribution
-
-- [Iowa Environmental Mesonet ASOS archive](https://mesonet.agron.iastate.edu/request/download.phtml): raw airport observations, with sparse coverage and minimal provider QC.
-- [NOAA GOES NODD public distribution](https://www.star.nesdis.noaa.gov/atmospheric-composition-training/satellite_data.php): anonymous GOES ABI NetCDF imagery; GOES-19 is the appropriate current GOES-East satellite for the 2026 example.
-- [NOAA MRMS public archive](https://registry.opendata.aws/noaa-mrms-pds/): planned **future** radar precipitation target source, not yet downloaded/decoded by this version.
-
-This project is independent coursework scaffolding and does not claim NOAA endorsement.
-
-
-## Repository integrity
-
-The `.[all]` install now declares SciPy, used by the synthetic GOES NetCDF test. GitHub Actions runs the offline tests on Windows and Ubuntu using Python 3.13. For an existing virtual environment, run `python -m pip install -e ".[all]"` again after updating pyproject.toml.
-
-## v0.3 — MRMS + supervised joins
-
-Start with [START_HERE_v0_3.md](START_HERE_v0_3.md) for the complete Windows-to-GitHub-to-one-real-sample procedure. `weather550 fetch-sample` retrieves a bounded 3-GOES + 2-MRMS case; `weather550 fetch-batch` processes up to 36 hourly issuances with caching and an audit log; `weather550 build-supervised` joins numerics and future rain. These are new and have offline tests, but still need a real-source Windows verification. Read [Team Handoff](docs/TEAM_HANDOFF.md) and [Narrow Codex Integration](docs/CODEX_SINGLE_PASS_INTEGRATION.md).
+Normalization has not been applied because it needs to be fitted on the training split. Keep the splits chronological and avoid randomly splitting overlapping windows. `build-supervised` supports `--train-before` and `--val-before` boundaries, excluding windows whose history or target intervals cross them, including the station lookback. The pilot is left unsplit. For the learned precipitation-overlay model, training overlays need chronological out-of-fold numerical predictions so the next model does not train on overfit predictions. The satellite-only and direct numerical-feature baselines should use the same samples, targets, and splits.
