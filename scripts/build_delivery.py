@@ -71,9 +71,10 @@ def main():
     import zipfile
     with zipfile.ZipFile(out/'teammate_handoff.zip','w',zipfile.ZIP_DEFLATED) as bundle:
         for path in [out/'supervised.npz',out/'supervised.json',
-                     Path('docs/REAL_DATA_HANDOFF.md'),Path('docs/REAL_DATA_VERIFICATION.json'),
+                     Path('README.md'),Path('docs/REAL_DATA_VERIFICATION.json'),
+                     Path('docs/RAW_ALIGNMENT_VERIFICATION.json'),
                      Path('scripts/load_dataset.py')]:
-            bundle.write(path,path.name)
+            bundle.write(path,path.as_posix() if path.parent == Path('docs') else path.name)
     print(json.dumps({k:v for k,v in summary.items() if k!='raw_files'},indent=2))
 
 if __name__=='__main__':main()

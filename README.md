@@ -64,7 +64,7 @@ If the station CSVs and processed source scenes are already present, rebuilding 
 .\.venv\Scripts\python.exe scripts/load_dataset.py data/processed/supervised.npz
 ```
 
-The delivery builder is intentionally set to the two pilot periods and expects 12 complete samples. It produces `supervised.npz`, its source-summary JSON, and `teammate_handoff.zip`. The ZIP includes the dataset, metadata, this README, and a standalone loading example. The general CLI also has `fetch-asos`, `fetch-goes`, `fetch-mrms`, `prepare-numeric`, `fetch-batch`, and `build-supervised` commands; use `--help` for their arguments.
+The delivery builder is intentionally set to the two pilot periods and expects 12 complete samples. It produces `supervised.npz`, its source-summary JSON, and `teammate_handoff.zip`. The ZIP includes the dataset, metadata, this README, and a standalone loading example. From an extracted bundle folder, run `python load_dataset.py supervised.npz` using the project environment. The general CLI also has `fetch-asos`, `fetch-goes`, `fetch-mrms`, `prepare-numeric`, `fetch-batch`, and `build-supervised` commands; use `--help` for their arguments.
 
 ## Using the tensors
 

@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-if (-not (Test-Path '.venv\Scripts\python.exe')) { throw 'Run setup_windows.ps1 or see QUICKSTART_WINDOWS.md first.' }
+if (-not (Test-Path '.venv\Scripts\python.exe')) { throw 'Run scripts/setup_windows.ps1 or follow the setup commands in README.md first.' }
 & .\.venv\Scripts\python.exe -m pytest -q
 if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
 & .\.venv\Scripts\weather550.exe demo --out data/demo
