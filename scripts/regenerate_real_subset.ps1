@@ -1,7 +1,7 @@
 # Run from any directory; each source request and batch is bounded.
 $ErrorActionPreference = 'Stop'
 Set-Location (Split-Path $PSScriptRoot -Parent)
-$weatherPython = Join-Path (Get-Location) '.venv\Scripts\python.exe'
+$weatherPython = Join-Path (Get-Location) '.venv\bin\python'
 function Invoke-Weather {
     & $weatherPython -m weather550.cli @args
     if ($LASTEXITCODE -ne 0) { throw "weather550 failed (exit $LASTEXITCODE)" }
