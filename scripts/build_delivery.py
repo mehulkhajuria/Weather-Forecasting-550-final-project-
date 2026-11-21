@@ -16,8 +16,8 @@ def configured_periods(path):
     periods=config['periods']
     ids=set(); ticks=set()
     for period in periods:
-        if period['event_id'] in ids or period['kind'] not in ('rainy','dry'):
-            raise ValueError('Event IDs must be unique and kind must be rainy or dry')
+        if period['event_id'] in ids or period['kind'] not in ('rainy','dry','mixed'):
+            raise ValueError('Event IDs must be unique and kind must be rainy, dry or mixed')
         ids.add(period['event_id'])
         start,end=parse_utc(period['start']),parse_utc(period['end'])
         if start.minute or start.second or end.minute or end.second or not timedelta(0)<end-start<=timedelta(hours=36):
@@ -38,7 +38,8 @@ def collect_periods(periods):
     from weather550.collect import fetch_one, fetch_batch
     from weather550.mrms import mrms_archive_url
     import requests
-    audit=[]
+    audit_path=Path('data/processed/fetch_audit.json')
+    audit=json.loads(audit_path.read_text(encoding='utf-8')).get('events',[]) if audit_path.exists() else []
     for period in periods:
         record={'event_id':period['event_id']}
         try:
@@ -60,7 +61,7 @@ def collect_periods(periods):
             record['status']='complete' if record['batch']['failures']==0 else 'partial'
         except Exception as exc:
             record.update(status='failed',error=f'{type(exc).__name__}: {exc}')
-        audit.append(record)
+        audit=[r for r in audit if r['event_id']!=record['event_id']]+[record]
         Path('data/processed/fetch_audit.json').write_text(json.dumps({'events':audit},indent=2),encoding='utf-8')
         print(json.dumps({k:v for k,v in record.items() if k not in ('preflight','station_summary','batch')}),flush=True)
     return audit
@@ -151,9 +152,12 @@ def main(argv=None):
         rainy=bool(keep.any() and np.any((rain>0)&mask))
         dry=bool(keep.any() and np.all(mask) and np.all(rain==0))
         event_summary.append({**period,'samples':int(keep.sum()),'verified_rainy':rainy,
+                              'requested_samples':int((parse_utc(period['end'])-parse_utc(period['start'])).total_seconds()/3600),
                               'verified_dry':dry,'status':'verified' if keep.any() else 'no_complete_samples'})
     np.savez_compressed(out/'supervised.npz',**payload)
     summary['events']=event_summary
+    summary['rejected_issuance_times_utc']=sorted(set(merged['issuance_times_utc'])-set(payload['issuance_times_utc']))
+    summary['verified_mixed_periods']=sum(e['kind']=='mixed' and e['samples']>0 for e in event_summary)
     summary['assembly_errors']=assembly_errors
     if Path('data/processed/fetch_audit.json').exists():
         summary['collection_audit']=json.loads(Path('data/processed/fetch_audit.json').read_text(encoding='utf-8'))
@@ -181,6 +185,6 @@ def main(argv=None):
                      args.periods,Path('data/processed/fetch_audit.json'),
                      Path('scripts/load_dataset.py')]:
             if path.exists(): bundle.write(path,path.as_posix() if path.parent == Path('docs') else path.name)
-    print(json.dumps({k:v for k,v in summary.items() if k!='raw_files'},indent=2))
+    print(json.dumps({k:v for k,v in summary.items() if k not in ('raw_files','collection_audit')},indent=2))
 
 if __name__=='__main__':main()

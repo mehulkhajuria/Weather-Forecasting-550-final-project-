@@ -17,4 +17,7 @@ with np.load(path,allow_pickle=False) as d:
     print('Features:',d['feature_names'].tolist())
     print('UTC issuances:',d['issuance_times_utc'].tolist())
     print('Valid fractions:',float(sat_mask.mean()),float(num_mask.mean()),float(target_mask.mean()))
+    if 'event_ids' in d:
+        events,counts=np.unique(d['event_ids'],return_counts=True)
+        print('Event sample counts:',dict(zip(events.tolist(),counts.tolist())))
     assert X_num.shape[1:] == (3,5,32,32)
