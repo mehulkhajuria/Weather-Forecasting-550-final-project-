@@ -1,0 +1,25 @@
+{
+  "event_definition": "Separate event groups are at least 48 hours apart between input/target windows. They are reference-station-screened rainy episodes, not proof of statistical independence. All hourly samples within a group share its ID.",
+  "periods": [
+    {
+      "event_id": "rain_20261011",
+      "kind": "rainy",
+      "start": "2026-10-11T14:00:00Z",
+      "end": "2026-10-11T20:00:00Z",
+      "station_file": "data/processed/stations_oct10_18.csv",
+      "station_raw": "data/raw/iem_asos_oct10_18.csv",
+      "station_start": "2026-10-10",
+      "station_end": "2026-10-18"
+    },
+    {
+      "event_id": "dry_20261020",
+      "kind": "dry",
+      "start": "2026-10-20T15:00:00Z",
+      "end": "2026-10-20T21:00:00Z",
+      "station_file": "data/processed/stations_utc.csv",
+      "station_raw": "data/raw/iem_asos.csv",
+      "station_start": "2026-10-20",
+      "station_end": "2026-10-22"
+    }
+  ]
+}

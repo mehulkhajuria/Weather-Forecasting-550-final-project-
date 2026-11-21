@@ -70,8 +70,46 @@
   ],
   "rainy_definition": "Any valid target cell > 0 mm across either horizon; dry requires all cells valid and zero.",
   "availability_limitation": "IEM lacks historical receipt timestamps. Ten-minute reporting latency is an explicit retrospective assumption, not measured receipt. GOES uses S3 LastModified.",
-  "study_coverage": "Only October 11 and 20, 2026 matched; August-October season not exhaustively verified.",
-  "evaluation_limitation": "Integration subset with one main rain event; insufficient for model evaluation or held-out-storm claims. No scaler fitted or model trained.",
+  "events": [
+    {
+      "event_id": "rain_20261011",
+      "kind": "rainy",
+      "start": "2026-10-11T14:00:00Z",
+      "end": "2026-10-11T20:00:00Z",
+      "station_file": "data/processed/stations_oct10_18.csv",
+      "station_raw": "data/raw/iem_asos_oct10_18.csv",
+      "station_start": "2026-10-10",
+      "station_end": "2026-10-18",
+      "samples": 6,
+      "verified_rainy": true,
+      "verified_dry": false,
+      "status": "verified"
+    },
+    {
+      "event_id": "dry_20261020",
+      "kind": "dry",
+      "start": "2026-10-20T15:00:00Z",
+      "end": "2026-10-20T21:00:00Z",
+      "station_file": "data/processed/stations_utc.csv",
+      "station_raw": "data/raw/iem_asos.csv",
+      "station_start": "2026-10-20",
+      "station_end": "2026-10-22",
+      "samples": 6,
+      "verified_rainy": false,
+      "verified_dry": true,
+      "status": "verified"
+    }
+  ],
+  "event_definition": "Separate event groups are at least 48 hours apart between input/target windows. They are reference-station-screened rainy episodes, not proof of statistical independence. All hourly samples within a group share its ID.",
+  "verified_rainy_events": 1,
+  "verified_dry_periods": 1,
+  "study_coverage": "Configured verified periods within August-October 2026; not continuous seasonal coverage.",
+  "pilot_reference": {
+    "file": "data/processed/pilot_supervised.npz",
+    "sha256": "26408cb7d8b4188c47bbb8daa9d292d1c227373d8888f296be43b282d4952d0c",
+    "manifest": "docs/PILOT_DATA_VERIFICATION.json"
+  },
+  "evaluation_limitation": "Selected event subset; event count alone does not establish evaluation reliability. No evaluation or held-out-storm performance claimed. No scaler fitted or model trained.",
   "raw_files": [
     {
       "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841156181_e20262841158567_c20262841159041.nc",
@@ -234,6 +272,36 @@
       "sha256": "439ef03cc27c56e4b607a1e03dd6a31b33af357c05707a3509daf51e20d9b52a"
     },
     {
+      "file": "data\\raw\\asos_20260801.csv",
+      "bytes": 142153,
+      "sha256": "76b10f3f96bc3c35a60ddd85ed3a0f3aa2f1f9ea93151327a77340239361bc22"
+    },
+    {
+      "file": "data\\raw\\asos_20260815.csv",
+      "bytes": 114710,
+      "sha256": "0464604221e11876a04dc7690399c2a36ea51d134869a03e12caef76cdc551cd"
+    },
+    {
+      "file": "data\\raw\\asos_20260901.csv",
+      "bytes": 111909,
+      "sha256": "f9f78cf3356e4224f8698b68dc6464ecad66902841ecf034f25f6c6551beaf95"
+    },
+    {
+      "file": "data\\raw\\asos_20260915.csv",
+      "bytes": 104305,
+      "sha256": "88699eca9c6bb4e99528ce90e1815e9f5044ef091f817bf9e8dfedbc8eed570f"
+    },
+    {
+      "file": "data\\raw\\asos_20261001.csv",
+      "bytes": 100515,
+      "sha256": "8d4b04a4d1e2cf9528f63851027b9ad524555d8f49f09176432a53b35077e7d5"
+    },
+    {
+      "file": "data\\raw\\asos_20261024.csv",
+      "bytes": 86065,
+      "sha256": "390bf7b2c02a200de89c3d026415be94f9e2575f762466f976875cb8a87d7911"
+    },
+    {
       "file": "data\\raw\\iem_asos.csv",
       "bytes": 21764,
       "sha256": "cfa288b0834f1538d906303065ef8bc57bb45fb486bf99690d32e102eaeaeabb"
@@ -244,6 +312,6 @@
       "sha256": "df7d66fadc7dc1b704c137db5157bc2ca0e165bcd0b9ec1001f18d0402078288"
     }
   ],
-  "dataset_bytes": 286470,
-  "dataset_sha256": "26408cb7d8b4188c47bbb8daa9d292d1c227373d8888f296be43b282d4952d0c"
+  "dataset_bytes": 286706,
+  "dataset_sha256": "b5cfadf7d115e95b92b3c82db0d44572b29bf756907b5f3c49a71d5bc26be17d"
 }

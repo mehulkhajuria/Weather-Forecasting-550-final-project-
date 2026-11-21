@@ -1,0 +1,249 @@
+{
+  "contract": "CS550-SUPERVISED-v0.3",
+  "file": "data\\processed\\supervised.npz",
+  "samples": 12,
+  "shape_X_goes": [
+    12,
+    3,
+    1,
+    32,
+    32
+  ],
+  "shape_X_num": [
+    12,
+    3,
+    5,
+    32,
+    32
+  ],
+  "shape_Y_rain_mm": [
+    12,
+    2,
+    32,
+    32
+  ],
+  "targets": "hourly QPE mm ending at t+1h and t+3h",
+  "skipped": {
+    "goes": 0,
+    "mrms": 0,
+    "quality": 0,
+    "numerical": 0
+  },
+  "total_numeric_issuance_times": 12,
+  "valid_fraction_goes": 1.0,
+  "valid_fraction_numerical": 0.7681315104166667,
+  "valid_fraction_rain": 1.0,
+  "rainy_samples": 6,
+  "dry_samples": 6,
+  "observation_latency_minutes": 10,
+  "train_normalization_done": false,
+  "chronological_splitting": "pass cutoff timestamps or do separately",
+  "notes": "MRMS Pass2 may be quality controlled after event time; targets only, never predictors",
+  "issuance_times_utc": [
+    "2026-10-11T14:00:00Z",
+    "2026-10-11T15:00:00Z",
+    "2026-10-11T16:00:00Z",
+    "2026-10-11T17:00:00Z",
+    "2026-10-11T18:00:00Z",
+    "2026-10-11T19:00:00Z",
+    "2026-10-20T15:00:00Z",
+    "2026-10-20T16:00:00Z",
+    "2026-10-20T17:00:00Z",
+    "2026-10-20T18:00:00Z",
+    "2026-10-20T19:00:00Z",
+    "2026-10-20T20:00:00Z"
+  ],
+  "valid_fraction_per_numerical_feature": {
+    "temperature_c": 0.802734375,
+    "dewpoint_c": 0.802734375,
+    "humidity_pct": 0.802734375,
+    "wind_speed_mps": 0.802734375,
+    "pressure_hpa": 0.6297200520833334
+  },
+  "goes_valid_range_kelvin": [
+    220.3714141845703,
+    299.7312316894531
+  ],
+  "rain_valid_range_mm": [
+    0.0,
+    26.700000762939453
+  ],
+  "rainy_definition": "Any valid target cell > 0 mm across either horizon; dry requires all cells valid and zero.",
+  "availability_limitation": "IEM lacks historical receipt timestamps. Ten-minute reporting latency is an explicit retrospective assumption, not measured receipt. GOES uses S3 LastModified.",
+  "study_coverage": "Only October 11 and 20, 2026 matched; August-October season not exhaustively verified.",
+  "evaluation_limitation": "Integration subset with one main rain event; insufficient for model evaluation or held-out-storm claims. No scaler fitted or model trained.",
+  "raw_files": [
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841156181_e20262841158567_c20262841159041.nc",
+      "bytes": 3972528,
+      "sha256": "c8b7bc2b16b2f28a5f14373c24c720dc1326984ddedbf2a334424fd735eafc3d"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841256181_e20262841258566_c20262841259043.nc",
+      "bytes": 3941769,
+      "sha256": "c14367c6f6a04a5d73e9c9a707345d3fa1d2662204be73599a661cae922e8499"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841356181_e20262841358567_c20262841359043.nc",
+      "bytes": 3917339,
+      "sha256": "ae1d679714719aab162fa6139c4904d2a14a63a3087ce8f88ddfbc3e01d55ff8"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841456182_e20262841458567_c20262841459052.nc",
+      "bytes": 3931612,
+      "sha256": "87d41fbd793b49790f067bedd42e65fb2cc294491c1b19057cfe27856253478d"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841556182_e20262841558566_c20262841559062.nc",
+      "bytes": 3957903,
+      "sha256": "f2decae63f1aaaf878a1c188954f2f1b05296105cd889e23a2b8dce82f2711ff"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841656182_e20262841658566_c20262841659051.nc",
+      "bytes": 3981295,
+      "sha256": "bae8bce6c33d5789d3e08ae68045e6ffc10f8bf9230de697800f49304d7cda8e"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841756182_e20262841758566_c20262841759068.nc",
+      "bytes": 3997233,
+      "sha256": "36e4a8371a7a7f1d806adfc2cc55f51e74ef6c9261591cb9b2e971b726565b52"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262841856182_e20262841858567_c20262841859045.nc",
+      "bytes": 3999380,
+      "sha256": "a779138b4c393aaaab91df4d365022745802462418e5e7e0eea4eb2b1f6fc56b"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931256177_e20262931258562_c20262931259024.nc",
+      "bytes": 3761767,
+      "sha256": "04b91a968523e65fb37aa17a6b6d4e6cc444c7f42b885f5ecf8aac9b5e40c73c"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931356177_e20262931358562_c20262931359040.nc",
+      "bytes": 3728595,
+      "sha256": "906e2c999c475a66676b6b892c985c635ead8e9f3f38fe672449d209d95dbc0f"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931456178_e20262931458562_c20262931459045.nc",
+      "bytes": 3726229,
+      "sha256": "d77f7170e26dd115521ff04a8004460e4e5d91fbb4798c4d324f2a754aaa7fde"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931556178_e20262931558563_c20262931559044.nc",
+      "bytes": 3783190,
+      "sha256": "5343349b79a434b2dbbe3fd50c8b77bd53a386fca7ee960aa0dd22331fc00a78"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931656178_e20262931658562_c20262931659047.nc",
+      "bytes": 3826874,
+      "sha256": "9bd35841f2573310d774c221c95b61d9b6ccfca2f9ed56722105d063a99d1dc2"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931756178_e20262931758562_c20262931759049.nc",
+      "bytes": 3859465,
+      "sha256": "e91d061a3351e3578bb8af298664c64c260a9f4681373b96bf001c23ea43fab7"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931856178_e20262931858563_c20262931859042.nc",
+      "bytes": 3867270,
+      "sha256": "b583abb3b718202e6b9935f37c9a6af4e92f80afadc919314e2c6cffd52c80a9"
+    },
+    {
+      "file": "data\\raw\\goes\\OR_ABI-L2-CMIPC-M6C13_G19_s20262931956178_e20262931958562_c20262931959045.nc",
+      "bytes": 3859386,
+      "sha256": "5f11110bb780dae7cb7f139ff30cd3c56b2a64b78b02d221c0496efa0ae26911"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T150000Z.grib2.gz",
+      "bytes": 1147612,
+      "sha256": "4d85835c797b63e1e2f45d069bcdf53e1456994e2dad30f92726e64347850741"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T160000Z.grib2.gz",
+      "bytes": 1113164,
+      "sha256": "d90c2d5468c0d801afe7aaf34d9e7c1c147c20d59a221f24020b3920242ba5ba"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T170000Z.grib2.gz",
+      "bytes": 1096114,
+      "sha256": "f7e497a4c8efa87b1d286228427664694edfc3e7d9e654fa27265bf02d243bdd"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T180000Z.grib2.gz",
+      "bytes": 1098424,
+      "sha256": "ce903295b406810e32cb300a43c815bffdaff30c0214b3516f972fd6bb044ca8"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T190000Z.grib2.gz",
+      "bytes": 1077934,
+      "sha256": "1a337f5082708fc90dfc3857e3f225ad580105fc9c456aad1db1a4e7f6514de6"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T200000Z.grib2.gz",
+      "bytes": 1049981,
+      "sha256": "79dcf81bc35d7e0a6dc2bde9eafc1bc485d94b591f777ecca36c595a937e5112"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T210000Z.grib2.gz",
+      "bytes": 1053357,
+      "sha256": "75425b9ebdf3b7b3ca513d567bdb567cb566736f61e990d37cd2199da1c51a9b"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261011T220000Z.grib2.gz",
+      "bytes": 1033721,
+      "sha256": "17ccea855905d0a8b591a5df79113671735cc1dccfb1a962a8361fecdc4d6102"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T160000Z.grib2.gz",
+      "bytes": 260292,
+      "sha256": "20c08f75ad8accccefe28d9d0c1a0bb50d49ced54649651c9b406edb2183b9ff"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T170000Z.grib2.gz",
+      "bytes": 243943,
+      "sha256": "5625a90329a17f712d54c8e9aa7b91080a1908a5ce1350718e1789c56e0678b8"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T180000Z.grib2.gz",
+      "bytes": 193781,
+      "sha256": "de0ec4d2ab1f78c401eb738b1e6003f8cfe57a9918372713c61ddd0c4ff644fe"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T190000Z.grib2.gz",
+      "bytes": 245839,
+      "sha256": "ce1a508f07322605c02beb14392cd4f13c45a15f1938cfbfb80e210caa3bdaac"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T200000Z.grib2.gz",
+      "bytes": 248501,
+      "sha256": "f920f5d926acd923cc42c3cf35068033d5b29423de360a15a9fb938e6df388b4"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T210000Z.grib2.gz",
+      "bytes": 243886,
+      "sha256": "f6470e776e6f1f5cc237801ac8c60428bdb0ec66e3e8d49dcb93a6aa9d77f691"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T220000Z.grib2.gz",
+      "bytes": 243424,
+      "sha256": "666383751678f4031cabc3fbfca0ffae66f90ad6c22112631403a14ca00dc885"
+    },
+    {
+      "file": "data\\raw\\mrms\\MRMS_QPE01H_20261020T230000Z.grib2.gz",
+      "bytes": 266054,
+      "sha256": "439ef03cc27c56e4b607a1e03dd6a31b33af357c05707a3509daf51e20d9b52a"
+    },
+    {
+      "file": "data\\raw\\iem_asos.csv",
+      "bytes": 21764,
+      "sha256": "cfa288b0834f1538d906303065ef8bc57bb45fb486bf99690d32e102eaeaeabb"
+    },
+    {
+      "file": "data\\raw\\iem_asos_oct10_18.csv",
+      "bytes": 108558,
+      "sha256": "df7d66fadc7dc1b704c137db5157bc2ca0e165bcd0b9ec1001f18d0402078288"
+    }
+  ],
+  "dataset_bytes": 286470,
+  "dataset_sha256": "26408cb7d8b4188c47bbb8daa9d292d1c227373d8888f296be43b282d4952d0c"
+}
