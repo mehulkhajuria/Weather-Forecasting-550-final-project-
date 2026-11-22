@@ -29,7 +29,13 @@ def scan_start_from_key(key: str) -> datetime:
 
 
 def list_public_s3(bucket: str, prefix: str, session=None, max_pages: int=3,
-                   with_availability=False):
+                   with_availability=False, cache_dir=None):
+    cache_path = None
+    if cache_dir is not None:
+        cache_path = Path(cache_dir) / (bucket + '_' + prefix.replace('/', '_') + '.json')
+        if cache_path.exists():
+            cached = json.loads(cache_path.read_text(encoding='utf-8'))
+            return {k: datetime.fromisoformat(v) for k,v in cached['availability'].items()} if with_availability else cached['keys']
     session = session or requests.Session()
     keys: list[str] = []
     availability = {}
@@ -51,6 +57,12 @@ def list_public_s3(bucket: str, prefix: str, session=None, max_pages: int=3,
         is_truncated = root.findtext("s:IsTruncated", default="false", namespaces=ns)
         token = root.findtext("s:NextContinuationToken", namespaces=ns)
         if is_truncated.lower() != "true":
+            if cache_path is not None:
+                import os
+                cache_path.parent.mkdir(parents=True,exist_ok=True)
+                part=cache_path.with_suffix(f'.{os.getpid()}.part')
+                part.write_text(json.dumps({'keys':keys,'availability':{k:v.isoformat() for k,v in availability.items()}}),encoding='utf-8')
+                part.replace(cache_path)
             return availability if with_availability else keys
         if not token:
             raise RuntimeError("S3 listing truncated without continuation token")
@@ -58,14 +70,15 @@ def list_public_s3(bucket: str, prefix: str, session=None, max_pages: int=3,
 
 
 def select_goes_c13(bucket: str, when: datetime, session=None, tolerance_minutes=20,
-                    return_availability=False):
+                    return_availability=False, cache_dir=None):
     if when.tzinfo is None:
         raise ValueError("--at must include timezone")
     when = when.astimezone(timezone.utc)
     candidates = {}
     for hour in [when - timedelta(hours=1),when]:
         prefix = f"ABI-L2-CMIPC/{hour.year}/{hour.timetuple().tm_yday:03d}/{hour.hour:02d}/"
-        candidates.update(list_public_s3(bucket, prefix, session=session, with_availability=True))
+        options={'cache_dir':cache_dir} if cache_dir is not None else {}
+        candidates.update(list_public_s3(bucket, prefix, session=session, with_availability=True,**options))
     availability = candidates
     candidates = [k for k, available in availability.items()
                   if 'C13_' in k and k.endswith('.nc')

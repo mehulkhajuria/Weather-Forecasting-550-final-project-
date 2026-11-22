@@ -118,6 +118,7 @@ def build_supervised(numerical_file:Path, goes_dir:Path, mrms_dir:Path, out_file
     gtimes=sorted(goes)
     G,GM,N,NM,Y,YM,ts,trace=[],[],[],[],[],[],[],[]
     missing={'goes':0,'mrms':0,'quality':0,'numerical':0}
+    rejected=[]
     from bisect import bisect_right
     for i,t in enumerate(times):
         scenes=[]
@@ -131,18 +132,22 @@ def build_supervised(numerical_file:Path, goes_dir:Path, mrms_dir:Path, out_file
             scenes.append(goes[gtimes[pos]])
         if len(scenes)!=goes_history:
             missing['goes']+=1
+            rejected.append({'issuance_utc':iso_utc(t),'reason':'goes_history_unavailable'})
             continue
         keys=[t+timedelta(hours=h) for h in (1,3)]
         if any(k not in mrms for k in keys):
             missing['mrms']+=1
+            rejected.append({'issuance_utc':iso_utc(t),'reason':'mrms_target_unavailable'})
             continue
         labels=[mrms[k] for k in keys]
         if not numM[i].any():
             missing['numerical']+=1
+            rejected.append({'issuance_utc':iso_utc(t),'reason':'numerical_all_missing'})
             continue
         if (min(np.mean(q['mask']) for q in scenes)<min_goes_fraction or
             min(np.mean(q['mask']) for q in labels)<min_mrms_fraction):
             missing['quality']+=1
+            rejected.append({'issuance_utc':iso_utc(t),'reason':'goes_or_mrms_quality_below_0.8'})
             continue
         G.append(np.stack([q['values'][None] for q in scenes]))
         GM.append(np.stack([q['mask'][None] for q in scenes]))
@@ -185,6 +190,7 @@ def build_supervised(numerical_file:Path, goes_dir:Path, mrms_dir:Path, out_file
           'samples':len(ts),'shape_X_goes':list(G.shape),'shape_X_num':list(N.shape),
           'shape_Y_rain_mm':list(Y.shape),'targets':'hourly QPE mm ending at t+1h and t+3h',
           'skipped':missing,'total_numeric_issuance_times':len(times),
+          'rejected_samples':rejected,
           'valid_fraction_goes':float(GM.mean()),'valid_fraction_numerical':float(NM.mean()),
           'valid_fraction_rain':float(YM.mean()),
           'rainy_samples':int(np.any((Y>0)&YM,axis=(1,2,3)).sum()),

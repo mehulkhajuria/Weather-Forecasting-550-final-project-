@@ -179,11 +179,11 @@ def decode_mrms_grib(gz_file: Path, out_npz: Path, *, valid_end_utc: str,
 
 
 def fetch_mrms(moment: datetime, raw_dir: Path, processed_dir: Path, *,
-              bbox=(39.2,-75.3,41.2,-73.0),height=64,width=64) -> dict:
+              bbox=(39.2,-75.3,41.2,-73.0),height=64,width=64,session=None) -> dict:
     name=f'MRMS_QPE01H_{moment:%Y%m%dT%H%M%SZ}'
     raw=Path(raw_dir)/(name+'.grib2.gz')
     processed=Path(processed_dir)/(name+'.npz')
-    record=download_mrms(moment,raw)
+    record=download_mrms(moment,raw,session=session)
     if processed.exists():
         return {'processed':str(processed),'cached':True,'source_url':record['url']}
     data=decode_mrms_grib(raw,processed,valid_end_utc=iso_utc(moment),
