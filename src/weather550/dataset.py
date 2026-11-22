@@ -144,10 +144,14 @@ def build_supervised(numerical_file:Path, goes_dir:Path, mrms_dir:Path, out_file
             missing['numerical']+=1
             rejected.append({'issuance_utc':iso_utc(t),'reason':'numerical_all_missing'})
             continue
-        if (min(np.mean(q['mask']) for q in scenes)<min_goes_fraction or
-            min(np.mean(q['mask']) for q in labels)<min_mrms_fraction):
+        goes_fraction=min(float(np.mean(q['mask'])) for q in scenes)
+        rain_fraction=min(float(np.mean(q['mask'])) for q in labels)
+        if goes_fraction<min_goes_fraction or rain_fraction<min_mrms_fraction:
             missing['quality']+=1
-            rejected.append({'issuance_utc':iso_utc(t),'reason':'goes_or_mrms_quality_below_0.8'})
+            reason=('goes_and_mrms' if goes_fraction<min_goes_fraction and rain_fraction<min_mrms_fraction
+                    else 'goes' if goes_fraction<min_goes_fraction else 'mrms')+'_quality_below_threshold'
+            rejected.append({'issuance_utc':iso_utc(t),'reason':reason,
+                             'minimum_goes_valid_fraction':goes_fraction,'minimum_rain_valid_fraction':rain_fraction})
             continue
         G.append(np.stack([q['values'][None] for q in scenes]))
         GM.append(np.stack([q['mask'][None] for q in scenes]))

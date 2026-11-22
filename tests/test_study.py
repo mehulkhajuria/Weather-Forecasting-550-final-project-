@@ -68,7 +68,7 @@ def test_episode_gaps_do_not_establish_dry_separation():
     rain=np.zeros((5,2,1,1),dtype='float32');rain[0]=1;rain[1]=1;rain[4]=1
     labels,gaps=f(times,rain,np.ones_like(rain,dtype=bool),dry_gap_hours=2)
     assert labels[0]==labels[1] and labels[4]!=labels[0]
-    assert len(gaps)==1 and labels[3].startswith('dry_')
+    assert len(gaps)==1 and labels[3].startswith('dry_calendar_')
 
 
 def test_coverage_reconciles_unique_issuances_and_source_failures(monkeypatch):
@@ -125,3 +125,37 @@ def test_raw_alignment_reuses_geometry_but_reads_each_new_grib(tmp_path):
         assert len(result['checks'])==3
         assert result['checks'][0]['valid'] is False
         assert result['checks'][-1]['raw_mm']==number
+
+
+
+def test_goes_verifier_uses_declared_nodes_before_float32_export(tmp_path):
+    import runpy
+    import xarray as xr
+    from pyproj import CRS,Transformer
+    from weather550.goes import reproject_goes_netcdf
+    attrs={'grid_mapping_name':'geostationary','latitude_of_projection_origin':0.,
+           'perspective_point_height':35786023.,'longitude_of_projection_origin':-75.,
+           'semi_major_axis':6378137.,'semi_minor_axis':6356752.31414,'sweep_angle_axis':'x'}
+    height=attrs['perspective_point_height']
+    tr=Transformer.from_crs('EPSG:4326',CRS.from_cf(attrs),always_xy=True)
+    x,y=tr.transform(-75.3,41.2)
+    raw=tmp_path/'synthetic.nc'
+    ds=xr.Dataset({'CMI':(('y','x'),np.array([[260,200],[300,220]],dtype='float32'),{'units':'K'}),
+                   'DQF':(('y','x'),np.zeros((2,2),dtype='int16')),
+                   'goes_imager_projection':((),0,attrs),'band_id':((),13)},
+                  coords={'x':[x/height-1e-5,x/height+1e-5],'y':[y/height+1e-5,y/height-1e-5]})
+    ds.to_netcdf(raw,engine='h5netcdf')
+    out=tmp_path/'crop.npz'
+    reproject_goes_netcdf(raw,out,bbox=[41.199,-75.301,41.2,-75.3],height=2,width=2)
+    module=runpy.run_path(str(Path(__file__).resolve().parents[1]/'scripts/verify_real_alignment.py'))
+    result=module['_verify_source'](('goes',str(out),str(raw),'raw_hash','processed_hash'))
+    assert result['verification_version']==3 and len(result['checks'])==3
+
+
+
+def test_resume_append_preserves_first_new_record_after_truncated_line(tmp_path):
+    from weather550.collect import append_record
+    path=tmp_path/'progress.jsonl';path.write_text('{interrupted')
+    item={'kind':'goes','time':'2026-08-01T00:00Z','ok':True,'file':'verified.npz'}
+    append_record(path,item)
+    assert source_records(path)[('goes',item['time'])]==item

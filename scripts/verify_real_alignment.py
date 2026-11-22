@@ -57,12 +57,18 @@ def _verify_source(job):
         else:
             import xarray as xr
             from pyproj import CRS,Transformer
+            info=json.loads(path.with_suffix('.json').read_text(encoding='utf-8'))
+            south,west,north,east=info['bbox_south_west_north_east']
+            declared_lat=np.linspace(north,south,height)
+            declared_lon=np.linspace(west,east,width)
             with xr.open_dataset(raw_path,engine='h5netcdf') as raw:
                 assert raw['CMI'].attrs['units']=='K' and int(raw.band_id.item())==13
                 tr=Transformer.from_crs('EPSG:4326',CRS.from_cf(raw.goes_imager_projection.attrs),always_xy=True)
                 height_m=raw.goes_imager_projection.attrs['perspective_point_height']
                 for r,c in pixels:
-                    x,y=tr.transform(float(d['longitude'][r,c]),float(d['latitude'][r,c]))
+                    assert d['latitude'][r,c]==np.float32(declared_lat[r])
+                    assert d['longitude'][r,c]==np.float32(declared_lon[c])
+                    x,y=tr.transform(declared_lon[c],declared_lat[r])
                     col=float(np.interp(x/height_m,raw.x.values,np.arange(raw.sizes['x'])))
                     row=float(np.interp(y/height_m,raw.y.values[::-1],np.arange(raw.sizes['y'])[::-1]))
                     rr,cc=int(np.floor(row)),int(np.floor(col))
@@ -80,7 +86,7 @@ def _verify_source(job):
                     checks.append({'file':text,'pixel':[r,c],'raw_bilinear_kelvin':float(expected),
                                    'processed_kelvin':float(d['CMI'][r,c]),'all_four_DQF_zero':bool((quality==0).all()),'valid':good})
     return {'kind':kind,'file':text,'raw_file':raw_text,'raw_sha256':raw_hash,
-            'processed_sha256':processed_hash,'verification_version':2,'checks':checks}
+            'processed_sha256':processed_hash,'verification_version':3 if kind=='goes' else 2,'checks':checks}
 
 
 def digest(path):
@@ -89,6 +95,7 @@ def digest(path):
 
 def verify(root=Path('data'),dataset=None,workers=4):
     from concurrent.futures import ProcessPoolExecutor
+    from weather550.collect import append_record
     root=Path(root)
     if workers not in range(1,5):raise ValueError('Use 1-4 workers')
     if dataset:
@@ -110,17 +117,17 @@ def verify(root=Path('data'),dataset=None,workers=4):
                  Path(json.loads(path.with_suffix('.json').read_text(encoding='utf-8'))['source_nc']))
             raw_hash,processed_hash=digest(raw),digest(path)
             old=cached.get((kind,text))
-            if old and old.get('verification_version')==2 and old['raw_sha256']==raw_hash and old['processed_sha256']==processed_hash:results.append(old)
+            if old and old.get('verification_version')==(3 if kind=='goes' else 2) and old['raw_sha256']==raw_hash and old['processed_sha256']==processed_hash:results.append(old)
             else:jobs.append((kind,text,str(raw),raw_hash,processed_hash))
     with ProcessPoolExecutor(max_workers=workers) as pool:
         for offset in range(0,len(jobs),64):
             for item in pool.map(_verify_source,jobs[offset:offset+64]):
                 results.append(item)
-                with journal.open('a',encoding='utf-8') as handle:handle.write(json.dumps(item)+'\n')
+                append_record(journal,item)
             print(f'Raw alignment files checked: {len(results)}/{sum(map(len,files.values()))}',flush=True)
     checks=[c for result in results if result['kind']=='mrms' for c in result['checks']]
     goes=[c for result in results if result['kind']=='goes' for c in result['checks']]
-    report={'method':'Three locations per referenced raw source. MRMS: ecCodes four nearest cells, 1m tie tolerance; neighbor indices reused only for identical validated grid geometry and target coordinates. GOES: independent CF projection and four-pixel interpolation with DQF checks.',
+    report={'method':'Three locations per referenced raw source. MRMS: ecCodes four nearest cells, 1m tie tolerance; neighbor indices reused only for identical validated grid geometry and target coordinates. GOES: independent CF projection at declared unrounded grid nodes, exported float32 coordinates checked, four-pixel interpolation and DQF checked; arithmetic tolerance 0.002 K.',
             'source_scope':'dataset-referenced files' if dataset else 'all converted files',
             'dataset_sha256':digest(dataset) if dataset else None,'checks':checks,'count':len(checks),
             'goes_checks':goes,'goes_count':len(goes),

@@ -136,6 +136,16 @@ def source_records(path=Path('data/processed/study_sources.jsonl')):
     return records
 
 
+def append_record(path,item):
+    """Isolate an interrupted final line before appending a complete record."""
+    with Path(path).open('ab+') as handle:
+        handle.seek(0,2)
+        if handle.tell():
+            handle.seek(-1,2)
+            if handle.read(1)!=b'\n':handle.write(b'\n')
+        handle.write((json.dumps(item)+'\n').encode('utf-8'));handle.flush()
+
+
 def study_hours(start,end):
     start,end=parse_utc(start),parse_utc(end)
     if start>=end or any((t.minute or t.second or t.microsecond) for t in (start,end)):
@@ -186,8 +196,7 @@ def fetch_study(start,end,*,workers=4,retry_failed=False):
             futures=[pool.submit(_study_source,job) for job in jobs]
             for future in as_completed(futures):
                 result=future.result();records[(result['kind'],result['time'])]=result
-                with journal.open('a',encoding='utf-8') as handle:
-                    handle.write(json.dumps(result)+'\n');handle.flush()
+                append_record(journal,result)
             print(json.dumps({'day':iso_utc(day[0]),'source_records':len(records),
                   'source_failures':sum(not r['ok'] for r in records.values())}),flush=True)
             if shutil.disk_usage('.').free<1024**3:raise RuntimeError('Less than 1 GiB remains; progress retained')

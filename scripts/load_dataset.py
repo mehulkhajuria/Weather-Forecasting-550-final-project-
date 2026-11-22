@@ -15,9 +15,12 @@ with np.load(path,allow_pickle=False) as d:
     # Fit any scalers on chronological TRAINING samples only. Do not shuffle before splitting.
     print('Satellite',X_sat.shape,'Numerical',X_num.shape,'Rain',Y.shape)
     print('Features:',d['feature_names'].tolist())
-    print('UTC issuances:',d['issuance_times_utc'].tolist())
+    times=d['issuance_times_utc']
+    print('UTC issuances:',len(times),'from',str(times[0]),'through',str(times[-1]))
     print('Valid fractions:',float(sat_mask.mean()),float(num_mask.mean()),float(target_mask.mean()))
     if 'event_ids' in d:
         events,counts=np.unique(d['event_ids'],return_counts=True)
         print('Event sample counts:',dict(zip(events.tolist(),counts.tolist())))
+    if 'precip_episode_ids' in d:
+        print('Precipitation episodes:',len({str(x) for x in d['precip_episode_ids'] if str(x).startswith('rain_episode_')}))
     assert X_num.shape[1:] == (3,5,32,32)

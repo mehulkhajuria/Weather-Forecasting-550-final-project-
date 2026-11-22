@@ -157,3 +157,16 @@ def test_split_embargo_includes_stale_station_lookback(joined):
     labels=split_by_target_bounds(['2026-10-20T18:00Z'],train_before='2026-10-19T00:00Z',
         val_before='2026-10-20T15:00Z',history_hours=3.5)
     assert labels.item()=='exclude'
+
+
+
+@pytest.mark.parametrize('kind',['goes','mrms'])
+def test_quality_rejection_records_the_actual_source(joined,kind):
+    n,g,m,run,p=joined
+    path=(g if kind=='goes' else m)/'1.npz'
+    with np.load(path) as d:fields={k:d[k] for k in d.files}
+    fields['quality_mask'][0,0]=False
+    np.savez(path,**fields)
+    report=run()
+    assert report['samples']==1
+    assert report['rejected_samples'][0]['reason']==kind+'_quality_below_threshold'
