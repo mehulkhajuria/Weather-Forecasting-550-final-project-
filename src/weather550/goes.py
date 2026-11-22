@@ -62,7 +62,12 @@ def list_public_s3(bucket: str, prefix: str, session=None, max_pages: int=3,
                 cache_path.parent.mkdir(parents=True,exist_ok=True)
                 part=cache_path.with_suffix(f'.{os.getpid()}.part')
                 part.write_text(json.dumps({'keys':keys,'availability':{k:v.isoformat() for k,v in availability.items()}}),encoding='utf-8')
-                part.replace(cache_path)
+                try:
+                    part.replace(cache_path)
+                except PermissionError:
+                    # Another Windows worker may be reading the same completed listing.
+                    if not cache_path.exists():raise
+                    part.unlink(missing_ok=True)
             return availability if with_availability else keys
         if not token:
             raise RuntimeError("S3 listing truncated without continuation token")

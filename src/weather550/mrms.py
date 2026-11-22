@@ -185,7 +185,15 @@ def fetch_mrms(moment: datetime, raw_dir: Path, processed_dir: Path, *,
     processed=Path(processed_dir)/(name+'.npz')
     record=download_mrms(moment,raw,session=session)
     if processed.exists():
-        return {'processed':str(processed),'cached':True,'source_url':record['url']}
+        import zipfile
+        from .dataset import load_grid
+        try:
+            item=load_grid(processed,'precip_mm','valid_end_utc')
+            lat,lon=grid_coordinates(bbox,height,width)
+            if (item['time']==moment and item['values'].shape==(height,width) and
+                np.allclose(item['lat'],lat,rtol=0,atol=1e-4) and np.allclose(item['lon'],lon,rtol=0,atol=1e-4)):
+                return {'processed':str(processed),'cached':True,'source_url':record['url']}
+        except (ValueError,OSError,KeyError,EOFError,zipfile.BadZipFile):pass
     data=decode_mrms_grib(raw,processed,valid_end_utc=iso_utc(moment),
           bbox=bbox,height=height,width=width,source_url=record['url'])
     return data

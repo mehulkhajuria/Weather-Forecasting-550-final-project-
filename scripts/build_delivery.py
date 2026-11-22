@@ -67,17 +67,119 @@ def collect_periods(periods):
     return audit
 
 
+def continuous_periods(study):
+    from weather550.collect import study_hours
+    hours=study_hours(study['start'],study['end'])
+    return [{'event_id':f"day_{day[0]:%Y%m%d}",'kind':'mixed',
+             'start':day[0].isoformat(),'end':(day[-1]+timedelta(hours=1)).isoformat(),
+             'station_file':'data/processed/stations_study.csv'}
+            for offset in range(0,len(hours),24) for day in [hours[offset:offset+24]]]
+
+
+def precipitation_episodes(times,rain,masks,dry_gap_hours=24):
+    # A gap in observations cannot establish a dry separation. Keep the group
+    # across unknown gaps; only consecutive fully valid dry hours can end it.
+    labels=[];current=None;dry_run=0;previous=None;uncertain=[]
+    for i,text in enumerate(times):
+        t=parse_utc(str(text))
+        if previous is not None and t-previous!=timedelta(hours=1):
+            uncertain.append({'after':previous.isoformat(),'before':t.isoformat()});dry_run=0
+        wet=bool(np.any((rain[i]>0)&masks[i]))
+        dry=bool(masks[i].all() and np.all(rain[i]==0))
+        if wet:
+            if current is None:current=f"rain_episode_{t:%Y%m%dT%H%MZ}"
+            dry_run=0;label=current
+        elif dry:
+            dry_run+=1
+            if dry_run>=dry_gap_hours:current=None
+            label=current or f"dry_{t:%Y%m%d}"
+        else:
+            dry_run=0;label=current or f"uncertain_{t:%Y%m%d}"
+        labels.append(label);previous=t
+    return np.array(labels),uncertain
+
+
+def study_accounting(study,kept,rejected):
+    from collections import Counter
+    from weather550.collect import study_hours,source_records
+    from weather550.timeutil import iso_utc
+    records=source_records();kept=set(str(t) for t in kept)
+    rejected={r['issuance_utc']:r['reason'] for r in rejected}
+    rows=[]
+    for t in study_hours(study['start'],study['end']):
+        text=iso_utc(t)
+        required=[('goes',iso_utc(t-timedelta(hours=h))) for h in (2,1,0)]
+        required += [('mrms',iso_utc(t+timedelta(hours=h))) for h in (1,3)]
+        complete=all(key in records for key in required)
+        errors=[records[key] for key in required if key in records and not records[key]['ok']]
+        if text in kept:row={'time':text,'status':'success'}
+        elif not complete:row={'time':text,'status':'unattempted','reason':'source_jobs_not_finished'}
+        else:
+            reason=(errors[0]['kind']+':'+errors[0]['reason']) if errors else rejected.get(text,'assembly_unavailable')
+            if errors and errors[0]['kind']=='goes' and ('No GOES Band 13' in errors[0].get('error','') or 'Closest GOES scene' in errors[0].get('error','')):
+                reason='goes_no_causal_scan_within_20min'
+            row={'time':text,'status':'rejected','reason':reason,'source_errors':errors}
+        rows.append(row)
+    missing=[]
+    for row in rows:
+        if row['status']=='success':continue
+        t=parse_utc(row['time'])
+        if missing and missing[-1]['end_exclusive_utc']==row['time'] and missing[-1]['reason']==row['reason']:
+            missing[-1]['end_exclusive_utc']=iso_utc(t+timedelta(hours=1));missing[-1]['hours']+=1
+        else:missing.append({'start_utc':row['time'],'end_exclusive_utc':iso_utc(t+timedelta(hours=1)),'hours':1,'reason':row['reason']})
+    successful=sum(r['status']=='success' for r in rows)
+    unavailable=sum(r['status']=='rejected' for r in rows)
+    return {'study_start_utc':study['start'],'study_end_exclusive_utc':study['end'],
+            'possible_issuances':len(rows),'attempted_issuances':successful+unavailable,
+            'successful_issuances':successful,'rejected_issuances':unavailable,
+            'unattempted_issuances':len(rows)-successful-unavailable,
+            'rejected_by_reason':dict(Counter(r['reason'] for r in rows if r['status']=='rejected')),
+            'missing_intervals':missing,'hours':rows}
+
+
+def check_references(payload):
+    results=[]
+    for name in ['pilot_supervised.npz','reference72_supervised.npz']:
+        path=Path('data/processed')/name
+        if not path.exists():
+            results.append({'file':str(path),'status':'reference_not_available'});continue
+        with np.load(path,allow_pickle=False) as old:
+            lookup={str(t):i for i,t in enumerate(payload['issuance_times_utc'])}
+            missing=[];compared=0
+            for i,text in enumerate(old['issuance_times_utc']):
+                if str(text) not in lookup:missing.append(str(text));continue
+                j=lookup[str(text)]
+                for key in ['X_goes','X_goes_mask','X_numerical','X_num_mask','Y_rain_mm','Y_rain_mask','goes_scan_times_utc','rain_valid_end_times_utc']:
+                    np.testing.assert_array_equal(payload[key][j],old[key][i],err_msg=f'Reference changed: {name} {text} {key}')
+                if 'event_ids' in old:assert payload['event_ids'][j]==old['event_ids'][i]
+                compared+=1
+            for key in ['feature_names','lat_grid','lon_grid','forecast_horizons_hours']:np.testing.assert_array_equal(payload[key],old[key])
+        results.append({'file':str(path),'status':'unchanged','samples_compared':compared,'unavailable_times':missing,
+                        'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+    return results
+
+
 def main(argv=None):
     import os
     os.chdir(ROOT)
     out = Path('data/processed')
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--periods',type=Path,default=Path('scripts/collection_periods.json'))
+    parser.add_argument('--selected',action='store_true',help='Rebuild only the archived selected periods')
+    parser.add_argument('--workers',type=int,default=4)
+    parser.add_argument('--retry-failed',action='store_true')
     parser.add_argument('--fetch',action='store_true',help='Check availability and download bounded configured periods first')
     args=parser.parse_args(argv)
     config=configured_periods(args.periods)
-    periods=config['periods']
-    if args.fetch: collect_periods(periods)
+    legacy_periods=config['periods']
+    study=config.get('study') if not args.selected else None
+    periods=continuous_periods(study) if study else legacy_periods
+    if args.fetch:
+        if study:
+            from weather550.collect import collect_study_asos,fetch_study
+            collect_study_asos(study['start'],study['end'])
+            fetch_study(study['start'],study['end'],workers=args.workers,retry_failed=args.retry_failed)
+        else:collect_periods(periods)
     parts=[]
     assembly_errors=[]
     for period in periods:
@@ -93,7 +195,7 @@ def main(argv=None):
     for key in ['X_numerical','X_mask','nearest_station_km','issuance_times_utc','latest_observation_times_utc']:
         merged[key]=np.concatenate([part[key] for part in parts])
     for key in ['feature_names','lat_grid','lon_grid','history_offsets_minutes','observation_latency_minutes']:
-        assert np.array_equal(parts[0][key],parts[1][key]), key
+        for part in parts[1:]:assert np.array_equal(parts[0][key],part[key]), key
     order=np.argsort(merged['issuance_times_utc'])
     for key in ['X_numerical','X_mask','nearest_station_km','issuance_times_utc','latest_observation_times_utc']:
         merged[key]=merged[key][order]
@@ -146,6 +248,21 @@ def main(argv=None):
         if len(matches)!=1: raise ValueError('Issuance has ambiguous event membership')
         labels.append(matches[0]['event_id'])
     payload['event_ids']=np.array(labels)
+    if study:
+        episode_ids,uncertain=precipitation_episodes(payload['issuance_times_utc'],payload['Y_rain_mm'],payload['Y_rain_mask'],study.get('episode_dry_gap_hours',24))
+        payload['precip_episode_ids']=episode_ids
+        legacy=[]
+        for i,text in enumerate(payload['issuance_times_utc']):
+            t=parse_utc(str(text))
+            matches=[p['event_id'] for p in legacy_periods if parse_utc(p['start'])<=t<parse_utc(p['end'])]
+            legacy.append(matches[0] if matches else '')
+        payload['legacy_period_ids']=np.array(legacy)
+        payload['event_ids']=np.array([old or episode for old,episode in zip(legacy,episode_ids)])
+        summary['coverage']=study_accounting(study,payload['issuance_times_utc'],summary['rejected_samples'])
+        summary['reference_checks']=check_references(payload)
+        summary['precipitation_episode_count']=len({x for x in episode_ids if x.startswith('rain_episode_')})
+        summary['episode_uncertain_gaps']=uncertain
+        summary['episode_definition']='Any positive valid target pixel starts/continues an episode. Only 24 consecutive hourly samples with fully valid zero targets end it. Missing hours cannot establish dry separation; groups may bridge gaps. Labels are for evaluation grouping, not proof of independence. Event_ids retain the 12 legacy identifiers; use precip_episode_ids to keep whole continuous episodes together.'
     for period in periods:
         keep=payload['event_ids']==period['event_id']
         rain=payload['Y_rain_mm'][keep];mask=payload['Y_rain_mask'][keep]
@@ -164,12 +281,23 @@ def main(argv=None):
     summary['event_definition']=config['event_definition']
     summary['verified_rainy_events']=sum(e['kind']=='rainy' and e['verified_rainy'] for e in event_summary)
     summary['verified_dry_periods']=sum(e['kind']=='dry' and e['verified_dry'] for e in event_summary)
-    summary['study_coverage']='Configured verified periods within August-October 2026; not continuous seasonal coverage.'
+    summary['study_coverage']='Continuous requested study interval, with every hour accounted for in coverage metadata.' if study else 'Configured verified periods within August-October 2026; not continuous seasonal coverage.'
+    if study:
+        summary['legacy_periods']=[{**p,'retained_samples':int((payload['legacy_period_ids']==p['event_id']).sum())} for p in legacy_periods]
+        summary['events']=[{'event_id':str(label),'samples':int((payload['precip_episode_ids']==label).sum())}
+                           for label in np.unique(payload['precip_episode_ids'])]
+        summary['event_definition']=summary['episode_definition']
+        summary['verified_rainy_events']=summary['precipitation_episode_count']
+        summary['verified_dry_periods']=len({x for x in payload['precip_episode_ids'] if x.startswith('dry_')})
+        summary['verified_mixed_periods']=0
+        Path('data/processed/study_coverage.json').write_text(json.dumps(summary['coverage'],indent=2),encoding='utf-8')
     summary['pilot_reference']={'file':'data/processed/pilot_supervised.npz','sha256':'26408cb7d8b4188c47bbb8daa9d292d1c227373d8888f296be43b282d4952d0c','manifest':'docs/PILOT_DATA_VERIFICATION.json'}
     companion=json.loads((out/'supervised.json').read_text(encoding='utf-8'))
     companion.update({k:summary[k] for k in ['events','event_definition','verified_rainy_events','verified_dry_periods','pilot_reference']})
+    if study:
+        companion.update({k:summary[k] for k in ['coverage','reference_checks','episode_definition','precipitation_episode_count','episode_uncertain_gaps','legacy_periods']})
     (out/'supervised.json').write_text(json.dumps(companion,indent=2),encoding='utf-8')
-    summary['evaluation_limitation']='Selected event subset; event count alone does not establish evaluation reliability. No evaluation or held-out-storm performance claimed. No scaler fitted or model trained.'
+    summary['evaluation_limitation']='Episode count does not establish evaluation reliability or independence. No scaler fitted, model trained, or evaluation performed.'
     files=sorted(Path('data/raw').rglob('*.nc'))+sorted(Path('data/raw').rglob('*.gz'))+sorted(Path('data/raw').glob('*.csv'))
     def digest(path):
         with path.open('rb') as handle: return hashlib.file_digest(handle,'sha256').hexdigest()
@@ -183,8 +311,9 @@ def main(argv=None):
                      Path('README.md'),Path('docs/REAL_DATA_VERIFICATION.json'),
                      Path('docs/RAW_ALIGNMENT_VERIFICATION.json'),Path('docs/PILOT_DATA_VERIFICATION.json'),
                      args.periods,Path('data/processed/fetch_audit.json'),
+                     Path('data/processed/study_coverage.json'),Path('data/processed/study_asos_audit.json'),Path('data/processed/study_sources.jsonl'),
                      Path('scripts/load_dataset.py')]:
             if path.exists(): bundle.write(path,path.as_posix() if path.parent == Path('docs') else path.name)
-    print(json.dumps({k:v for k,v in summary.items() if k not in ('raw_files','collection_audit')},indent=2))
+    print(json.dumps({k:v for k,v in summary.items() if k not in ('raw_files','collection_audit','coverage','rejected_samples','issuance_times_utc')},indent=2))
 
 if __name__=='__main__':main()

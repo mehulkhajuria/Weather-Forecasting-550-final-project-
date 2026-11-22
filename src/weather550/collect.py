@@ -78,10 +78,14 @@ def retry_session():
 
 def _valid_scene(path,kind,cutoff):
     import numpy as np
+    import zipfile
     from .dataset import load_grid
     from .numerical import grid_coordinates
     field,timefield=('CMI','scan_time_utc') if kind=='goes' else ('precip_mm','valid_end_utc')
-    item=load_grid(Path(path),field,timefield)
+    try:
+        item=load_grid(Path(path),field,timefield)
+    except (ValueError,OSError,KeyError,EOFError,zipfile.BadZipFile):
+        return False
     lat,lon=grid_coordinates((39.2,-75.3,41.2,-73.0),32,32)
     if item['values'].shape!=(32,32) or item['mask'].shape!=(32,32):return False
     if not np.allclose(item['lat'],lat,atol=1e-4,rtol=0) or not np.allclose(item['lon'],lon,atol=1e-4,rtol=0):return False

@@ -122,5 +122,11 @@
       "station_start": "2026-10-24",
       "station_end": "2026-11-01"
     }
-  ]
+  ],
+  "study": {
+    "start": "2026-08-01T00:00:00Z",
+    "end": "2026-11-01T00:00:00Z",
+    "batch_hours": 24,
+    "episode_dry_gap_hours": 24
+  }
 }
