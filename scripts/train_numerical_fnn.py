@@ -66,12 +66,12 @@ test_loader = DataLoader(NumericalWeatherDataset(test_numerical_sample_tensor, t
 # ----------------------
 
 model = FNO(
-    n_modes=(5, 32, 32),         #this has to be as long as the 5-dimensions of the input
-    in_channels=5,  # = number of input variables
-    out_channels=2,   # = number of output variables
+    n_modes=(12, 12),   #this tuple has to be as long as the spatiotemporal axes
+    in_channels=15,     # = number of input variables
+    out_channels=2,     # = number of output variables
     hidden_channels=32,     # hyperparameter
     #projection_channel_ratio=2
-    positional_embedding=None  #ABSOLUTELY FIX THIS LATER
+    positional_embedding="grid"  #ABSOLUTELY FIX THIS LATER
 )
 model = model.to(device)
 
@@ -92,8 +92,8 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=30)
 # # -------------------------
 # # We use H1 loss for training and L2 loss for evaluation
 # # H1 loss is particularly good for PDE problems as it penalizes both function values and gradients
-l2loss = LpLoss()  # L2 loss for function values
-h1loss = H1Loss()  # H1 loss includes gradient information
+l2loss = LpLoss(d=2, p=2)  # L2 loss for function values
+h1loss = H1Loss(d=2)  # H1 loss includes gradient information
 
 # mean_squared_error_loss = MSELoss()
 
