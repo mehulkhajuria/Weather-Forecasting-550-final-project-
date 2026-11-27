@@ -45,7 +45,11 @@ def get_numerical_data_and_validity_ndarray(lbound: int, rbound: int):
     numerical_validity_wrapper = np.array([X_numerical, numerical_valid[lbound:rbound]])
     numerical_validity_wrapper = np.transpose(numerical_validity_wrapper, (1, 2, 0, 3, 4))
 
-    print("Returning nuemrical + validity", np.shape(numerical_validity_wrapper))
+    #fold the validity axis back into the channel
+    n, w, v, x, y = np.shape(numerical_validity_wrapper)
+    numerical_validity_wrapper = np.reshape(numerical_validity_wrapper, n, w * v, x, y)
+
+    print("Returning numerical + validity", np.shape(numerical_validity_wrapper))
     return numerical_validity_wrapper
 
 def get_rain_data_and_validity_ndarray(lbound: int, rbound:int):
@@ -57,6 +61,10 @@ def get_rain_data_and_validity_ndarray(lbound: int, rbound:int):
     #validity is its own axis, see above reason
     rain_validity_wrapper = np.array([Y_rain_mm, rain_valid[lbound:rbound]])
     rain_validity_wrapper = np.transpose(rain_validity_wrapper, (1, 2, 0, 3, 4))
+
+    #fold the validity axis back into the channel
+    n, f, v, x, y = np.shape(rain_validity_wrapper)
+    numerical_validity_wrapper = np.reshape(rain_validity_wrapper, n, f * v, x, y)
 
     print("Returning rain + validity", np.shape(rain_validity_wrapper))
     return rain_validity_wrapper
@@ -84,9 +92,15 @@ def get_goes_data_and_validity_ndarray(lbound: int, rbound: int):
     goes_valid = np.reshape(goes_valid, shape=(n, f * w, x, y))
 
     #validity is its own axis once more
-    rain_validity_wrapper = np.array([X_goes, goes_valid[lbound:rbound]])
-    rain_validity_wrapper = np.transpose(rain_validity_wrapper, (1, 2, 0, 3, 4))
+    goes_validity_wrapper = np.array([X_goes, goes_valid[lbound:rbound]])
+    goes_validity_wrapper = np.transpose(goes_validity_wrapper, (1, 2, 0, 3, 4))
 
-    print("Returning GOES + validity", np.shape(rain_validity_wrapper))
-    return rain_validity_wrapper
+    #but then fold it back in
+    #fold the validity axis back into the channel
+    n, w, v, x, y = np.shape()
+    goes_validity_wrapper = np.reshape(goes_validity_wrapper, n, w * v, x, y)
+
+
+    print("Returning GOES + validity", np.shape(goes_validity_wrapper))
+    return goes_validity_wrapper
         
