@@ -14,15 +14,31 @@ from weather_dataset import NumericalWeatherDataset
 from neuralop.data.transforms.normalizers import UnitGaussianNormalizer
 from neuralop.data.transforms.data_processors import DefaultDataProcessor
 
-
 device = "cpu"
 
 import numpy as np
+import argparse
+import os.path
 
+parser = argparse.ArgumentParser("train_numerical_model")
+parser.add_argument("train_sample_left_index", help="Left bound (inclusive) of datasets to use for training")
+parser.add_argument("train_sample_right_index", help="Right bound (exclusive) of datasets to use for training")
+parser.add_argument("test_sample_left_index", help="Left bound (inclusive) of datasets to use for testing")
+parser.add_argument("test_sample_right_index", help="Right bound (exclusive) of datasets to use for testing")
+parser.add_argument("save_checkpoint_directory_path", help="Path to save the stored numerical model")
+parser.add_argument("epochs", help="number of epochs to train for")
+args = parser.parse_args()
 
 # create a dataset for the training samples
-train_numerical_sample_tensor = torch.from_numpy(get_numerical_data_and_validity_ndarray(0, 16)).type(torch.FloatTensor)
-train_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(0, 16)).type(torch.FloatTensor)
+train_l = args.train_sample_left_index
+train_r = args.train_sample_right_index
+test_l = args.test_sample_left_index
+test_r = args.test_sample_right_index
+ckpt_path = args.save_checkpoint_directory_path
+epochs = args.epochs
+
+train_numerical_sample_tensor = torch.from_numpy(get_numerical_data_and_validity_ndarray(train_l, train_r)).type(torch.FloatTensor)
+train_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(train_l, train_r)).type(torch.FloatTensor)
 print(type(train_numerical_sample_tensor), type(train_rain_sample_tensor))
 print(train_numerical_sample_tensor.shape, train_rain_sample_tensor.shape)
 
@@ -31,18 +47,13 @@ train_loader = DataLoader(train_dataset)
 
 #create a normalizer for the inputs
 #prevent the validity mask from being normalized
-validity_preserving_input_normalize_mask = np.array([np.ones((3 * 5, 32, 32)), np.zeros((3 * 5,32,32))])
-validity_preserving_input_normalize_mask = np.transpose(validity_preserving_input_normalize_mask, (1, 0, 2, 3))
-attr, v, x, y = np.shape(validity_preserving_input_normalize_mask)
-validity_preserving_input_normalize_mask = np.reshape(validity_preserving_input_normalize_mask, (attr * v, x, y))
-validity_preserving_input_normalize_mask = torch.from_numpy(validity_preserving_input_normalize_mask)
+# validity_preserving_input_normalize_mask = np.array([np.ones((3 * 5, 32, 32)), np.zeros((3 * 5,32,32))])
+# validity_preserving_input_normalize_mask = np.transpose(validity_preserving_input_normalize_mask, (1, 0, 2, 3))
+# attr, v, x, y = np.shape(validity_preserving_input_normalize_mask)
+# validity_preserving_input_normalize_mask = np.reshape(validity_preserving_input_normalize_mask, (attr * v, x, y))
+# validity_preserving_input_normalize_mask = torch.from_numpy(validity_preserving_input_normalize_mask)
 
-print("Mask tensor shape: ", validity_preserving_input_normalize_mask.shape)
-print("Input tensor shape: ", train_numerical_sample_tensor.shape)
-print("Output tensor shape: ", train_rain_sample_tensor.shape)
-print(torch.all(validity_preserving_input_normalize_mask == validity_preserving_input_normalize_mask[0]))
-
-train_in_normalizer = provide_normalizer(train_dataset, "x", 30)
+train_in_normalizer = provide_normalizer(train_dataset, "x", 3*5*2)
 
 #can't use from_dataset, there is some kind of broadcasting bug that prevent channel variant masks.
 # train_in_normalizer = UnitGaussianNormalizer.from_dataset(
@@ -53,13 +64,13 @@ train_in_normalizer = provide_normalizer(train_dataset, "x", 30)
 # )
 
 #create a normalizer for the outputs
-validity_preserving_output_normalize_mask = np.array([np.ones((2, 32, 32)), np.zeros((2,32,32))])
-validity_preserving_output_normalize_mask = np.transpose(validity_preserving_output_normalize_mask, (1, 0, 2, 3))
-attr, v, x, y = np.shape(validity_preserving_output_normalize_mask)
-validity_preserving_output_normalize_mask = np.reshape(validity_preserving_output_normalize_mask, (attr * v, x, y))
-validity_preserving_output_normalize_mask = torch.from_numpy(validity_preserving_output_normalize_mask)
+# validity_preserving_output_normalize_mask = np.array([np.ones((2, 32, 32)), np.zeros((2,32,32))])
+# validity_preserving_output_normalize_mask = np.transpose(validity_preserving_output_normalize_mask, (1, 0, 2, 3))
+# attr, v, x, y = np.shape(validity_preserving_output_normalize_mask)
+# validity_preserving_output_normalize_mask = np.reshape(validity_preserving_output_normalize_mask, (attr * v, x, y))
+# validity_preserving_output_normalize_mask = torch.from_numpy(validity_preserving_output_normalize_mask)
 
-train_out_normalizer = provide_normalizer(train_dataset, "y", 4)
+train_out_normalizer = provide_normalizer(train_dataset, "y", 2*2)
 # train_out_normalizer = UnitGaussianNormalizer.from_dataset(
 #     dim=[0, 2, 3],
 #     dataset = train_dataset,
@@ -72,8 +83,8 @@ train_processor = DefaultDataProcessor(in_normalizer=train_in_normalizer, out_no
 
 #do the same but for the testing data
 
-test_numerical_sample_tensor = torch.from_numpy(get_numerical_data_and_validity_ndarray(16, 20)).type(torch.FloatTensor)
-test_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(16, 20)).type(torch.FloatTensor)
+test_numerical_sample_tensor = torch.from_numpy(get_numerical_data_and_validity_ndarray(test_l, test_r)).type(torch.FloatTensor)
+test_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(test_l, test_r)).type(torch.FloatTensor)
 print(type(test_numerical_sample_tensor), type(test_rain_sample_tensor))
 print(test_numerical_sample_tensor.shape, test_rain_sample_tensor.shape)
 
@@ -140,7 +151,7 @@ sys.stdout.flush()
 # # We create a Trainer object that handles the training loop, evaluation, and logging
 trainer = Trainer(
     model=model,
-    n_epochs=20,
+    n_epochs=epochs,
     device=device,
     data_processor= train_processor,
     wandb_log=False,  # Disable Weights & Biases logging for this tutorial
@@ -169,6 +180,8 @@ trainer.train(
     training_loss=train_loss,
     eval_losses=eval_losses,
 )
+
+model.save_checkpoint(os.path.dirname(ckpt_path), os.path.basename(ckpt_path))
 
 
 # Visualizing predictions
