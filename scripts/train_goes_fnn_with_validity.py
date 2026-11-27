@@ -1,96 +1,46 @@
 import torch
-from torch import Tensor
 import matplotlib.pyplot as plt
 import sys
 from torch.utils.data import DataLoader
 from neuralop.models import FNO
 from neuralop import Trainer
 from neuralop.training import AdamW
-from torch.utils.data import TensorDataset
-from neuralop.data.datasets import load_darcy_flow_small, DarcyDataset
-from neuralop.data.transforms.data_processors import DefaultDataProcessor
 from neuralop.utils import count_model_params
 from neuralop import H1Loss, LpLoss
 from neuralop.losses.data_losses import MSELoss
-from inspect_processed_data import get_rain_data_and_validity_ndarray, get_goes_data_and_validity_ndarray, get_numerical_data_ndarray, get_rain_data_ndarray
+from inspect_processed_data import get_rain_data_and_validity_ndarray, get_goes_data_and_validity_ndarray
 from weather_dataset import NumericalWeatherDataset
-import neuralop.layers.embeddings
-from neuralop.layers.fno_block import FNOBlocks
-from neuralop.layers.embeddings import GridEmbedding2D
-from neuralop.data.transforms.normalizers import UnitGaussianNormalizer
 
 device = "cpu"
 
 import numpy as np
 
 
-# create a dataset for the training samples
 train_goes_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(0, 16)).type(torch.FloatTensor)
 train_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(0, 16)).type(torch.FloatTensor)
 print(type(train_goes_sample_tensor), type(train_rain_sample_tensor))
-print(train_goes_sample_tensor.shape, train_rain_sample_tensor.shape)
+print("GOES training tensor:", train_goes_sample_tensor.shape, "Rain training tensor:",train_rain_sample_tensor.shape)
 
-train_dataset = NumericalWeatherDataset(train_goes_sample_tensor, train_rain_sample_tensor)
-train_loader = DataLoader(train_dataset)
+train_loader = DataLoader(NumericalWeatherDataset(train_goes_sample_tensor, train_rain_sample_tensor))
 
-#create a normalizer for the inputs
-#prevent the validity mask from being normalized
-validity_preserving_input_normalize_mask = np.array([np.ones((3 * 1, 32, 32)), np.zeros((3 * 1,32,32))])
-validity_preserving_input_normalize_mask = np.transpose(validity_preserving_input_normalize_mask, (1, 0, 2, 3))
-attr, v, x, y = np.shape(validity_preserving_input_normalize_mask)
-validity_preserving_input_normalize_mask = np.reshape(validity_preserving_input_normalize_mask, (attr * v, x, y))
-
-train_in_normalizer = UnitGaussianNormalizer.from_dataset(
-    dataset = train_dataset,
-    mask = validity_preserving_input_normalize_mask,
-    keys=["x"]
-)
-
-#create a normalizer for the outputs
-validity_preserving_output_normalize_mask = np.array([np.ones((2, 32, 32)), np.zeros((2,32,32))])
-validity_preserving_output_normalize_mask = np.transpose(validity_preserving_output_normalize_mask, (1, 0, 2, 3))
-attr, v, x, y = np.shape(validity_preserving_output_normalize_mask)
-validity_preserving_output_normalize_mask = np.reshape(validity_preserving_output_normalize_mask, (attr * v, x, y))
-
-train_out_normalizer = UnitGaussianNormalizer.from_dataset(
-    dataset = train_dataset,
-    mask = validity_preserving_output_normalize_mask,
-    keys=["y"]
-)
-
-train_processor = DefaultDataProcessor(in_normalizer=train_in_normalizer, out_normalizer=train_out_normalizer)
-
-#do the same but for the testing data
-
-test_goes_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(16, 20)).type(torch.FloatTensor)
+test_numerical_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(16, 20)).type(torch.FloatTensor)
 test_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(16, 20)).type(torch.FloatTensor)
-print(type(test_goes_sample_tensor), type(test_rain_sample_tensor))
-print(test_goes_sample_tensor.shape, test_rain_sample_tensor.shape)
+print(type(test_numerical_sample_tensor), type(test_rain_sample_tensor))
+print("GOES test tensor:", test_numerical_sample_tensor.shape, "Rain test tensor", test_rain_sample_tensor.shape)
 
-test_dataset = NumericalWeatherDataset(test_goes_sample_tensor, test_rain_sample_tensor)
-test_loader = DataLoader(test_dataset)
+test_loader = DataLoader(NumericalWeatherDataset(test_numerical_sample_tensor, test_rain_sample_tensor))
 
-test_in_normalizer = UnitGaussianNormalizer.from_dataset(
-    dataset = test_dataset,
-    mask = validity_preserving_input_normalize_mask,
-    keys=["x"]
-)
-
-test_out_normalizer = UnitGaussianNormalizer.from_dataset(
-    dataset = test_dataset,
-    mask = validity_preserving_output_normalize_mask,
-    keys=["y"]
-)
 
 # Create the FNO model
 # ----------------------
 
 model = FNO(
-    n_modes=(12, 12),   #this tuple has to be as long as the temporal axes
-    in_channels=3*5*2,     # = length of input channel - 3 intervals * 5 attributes * infolded value/validity dimension
-    out_channels=2*2,     # = number of output variables - 2 intervals * infolded value/validity dimension
+    n_modes=(2, 12, 12),   #this tuple has to be as long as the spatiotemporal axes
+    in_channels=3,     # = number of input variables
+    out_channels=2,     # = number of output variables
     hidden_channels=32,     # hyperparameter
-    positional_embedding="grid"  #ABSOLUTELY FIX THIS LATER?
+    #projection_channel_ratio=2
+    positional_embedding="grid"  #ABSOLUTELY FIX THIS LATER
 )
 model = model.to(device)
 
@@ -98,6 +48,7 @@ model = model.to(device)
 n_params = count_model_params(model)
 print(f"\nOur model has {n_params} parameters.")
 sys.stdout.flush()
+
 
 
 # # Creating the optimizer and scheduler
@@ -116,7 +67,7 @@ h1loss = H1Loss(d=2)  # H1 loss includes gradient information
 # mean_squared_error_loss = MSELoss()
 
 train_loss = MSELoss()
-eval_losses = {"h1": h1loss }
+eval_losses = {"MSE": train_loss }
 
 # # Training the model
 # # ---------------------
@@ -137,7 +88,7 @@ trainer = Trainer(
     model=model,
     n_epochs=15,
     device=device,
-    data_processor= train_processor,
+    data_processor=None,
     wandb_log=False,  # Disable Weights & Biases logging for this tutorial
     eval_interval=5,  # Evaluate every 5 epochs
     use_distributed=False,  # Single GPU/CPU training
@@ -216,3 +167,69 @@ for index in range(3):
 # fig.suptitle("FNO predictions on 16x16 Darcy-Flow data", y=0.98)
 # plt.tight_layout()
 # fig.show()
+
+# # Zero-shot super-resolution evaluation
+# # -------------------------------------
+# # One of the key advantages of neural operators is their resolution invariance.
+# # The FNO's invariance to the discretization of input data means we can natively
+# # make predictions on higher-resolution inputs and get higher-resolution outputs
+# # without retraining the model!
+
+# test_samples = test_loaders[32].dataset
+
+# fig = plt.figure(figsize=(7, 7))
+# for index in range(3):
+#     data = test_samples[index]
+#     data = data_processor.preprocess(data, batched=False)
+
+#     # Input at higher-resolution
+#     x = data["x"]
+#     # Ground-truth output at higher-resolution
+#     y = data["y"]
+#     # Model prediction at higher-resolution
+#     out = model(x.unsqueeze(0))
+
+#     # Plot input at higher-resolution
+#     ax = fig.add_subplot(3, 3, index * 3 + 1)
+#     ax.imshow(x[0], cmap="gray")
+#     if index == 0:
+#         ax.set_title("Input at 32x32")
+#     plt.xticks([], [])
+#     plt.yticks([], [])
+
+#     # Plot ground-truth output at higher-resolution
+#     ax = fig.add_subplot(3, 3, index * 3 + 2)
+#     ax.imshow(y.squeeze())
+#     if index == 0:
+#         ax.set_title("Ground-truth at 32x32")
+#     plt.xticks([], [])
+#     plt.yticks([], [])
+
+#     # Plot model prediction at higher-resolution
+#     ax = fig.add_subplot(3, 3, index * 3 + 3)
+#     ax.imshow(out.squeeze().detach().numpy())
+#     if index == 0:
+#         ax.set_title("FNO prediction at 32x32")
+#     plt.xticks([], [])
+#     plt.yticks([], [])
+
+# fig.suptitle("Zero-shot super-resolution: 16x16 → 32x32", y=0.98)
+# plt.tight_layout()
+# fig.show()
+
+
+# # Understanding zero-shot super-resolution
+# # ----------------------------------------
+# # We only trained the model on data at a resolution of 16x16, and with no modifications
+# # or special prompting, we were able to perform inference on higher-resolution input data
+# # and get higher-resolution predictions! This is a powerful capability of neural operators.
+# #
+# # In practice, we often want to evaluate neural operators at multiple resolutions to track
+# # a model's zero-shot super-resolution performance throughout training. That's why many of
+# # our datasets, including the small Darcy-flow we showcased, are parameterized with a list
+# # of `test_resolutions` to choose from.
+# #
+# # Note: These predictions may be noisier than we would expect for a model evaluated
+# # at the same resolution at which it was trained. This is because the model hasn't seen
+# # the higher-frequency patterns present in the 32x32 data during training. However, this
+# # demonstrates the fundamental resolution invariance of neural operators.

@@ -1,5 +1,7 @@
 import numpy as np
 import torch
+from neuralop.data.transforms.normalizers import UnitGaussianNormalizer
+from torch.utils.data.dataset import Dataset
 import sys
 
 # with np.load('data/processed/supervised.npz', allow_pickle=False) as data:
@@ -47,7 +49,7 @@ def get_numerical_data_and_validity_ndarray(lbound: int, rbound: int):
 
     #fold the validity axis back into the channel
     n, w, v, x, y = np.shape(numerical_validity_wrapper)
-    numerical_validity_wrapper = np.reshape(numerical_validity_wrapper, n, w * v, x, y)
+    numerical_validity_wrapper = np.reshape(numerical_validity_wrapper, (n, w * v, x, y))
 
     print("Returning numerical + validity", np.shape(numerical_validity_wrapper))
     return numerical_validity_wrapper
@@ -64,7 +66,7 @@ def get_rain_data_and_validity_ndarray(lbound: int, rbound:int):
 
     #fold the validity axis back into the channel
     n, f, v, x, y = np.shape(rain_validity_wrapper)
-    numerical_validity_wrapper = np.reshape(rain_validity_wrapper, n, f * v, x, y)
+    rain_validity_wrapper = np.reshape(rain_validity_wrapper, (n, f * v, x, y))
 
     print("Returning rain + validity", np.shape(rain_validity_wrapper))
     return rain_validity_wrapper
@@ -98,9 +100,43 @@ def get_goes_data_and_validity_ndarray(lbound: int, rbound: int):
     #but then fold it back in
     #fold the validity axis back into the channel
     n, w, v, x, y = np.shape()
-    goes_validity_wrapper = np.reshape(goes_validity_wrapper, n, w * v, x, y)
+    goes_validity_wrapper = np.reshape(goes_validity_wrapper, (n, w * v, x, y))
 
 
     print("Returning GOES + validity", np.shape(goes_validity_wrapper))
     return goes_validity_wrapper
-        
+
+def provide_normalizer(dataset : Dataset, key : str, channels : int):
+    #there is a quirk with the UnitGaussianNormalizer library
+    #that prevents exclusion of certain channels in normalization
+    #this solution is needed as a result.
+
+    #provides a unit_gaussian normalizer
+    sum_x = torch.zeros((1, int(channels/2), 1, 1), dtype=torch.float64)
+    sum_x2 = torch.zeros((1, int(channels/2), 1, 1), dtype=torch.float64)
+    valid_count = torch.zeros((1, int(channels/2), 1, 1), dtype=torch.float64)
+
+    for sample in dataset:
+        x = sample[key].to(torch.float64)
+        if x.ndim == 3:
+            x = x.unsqueeze(0)  # (1, 30, 32, 32)
+
+        data = x[:, 0::2]   # even channels: 15 numerical variables
+        valid = x[:, 1::2]  # odd channels: 15 binary validity masks
+
+        sum_x += (data * valid).sum(dim=(0, 2, 3), keepdim=True)
+        sum_x2 += ((data ** 2) * valid).sum(dim=(0, 2, 3), keepdim=True)
+        valid_count += valid.sum(dim=(0, 2, 3), keepdim=True)
+
+    safe_count = valid_count.clamp(min=1.0)
+    data_mean = (sum_x / safe_count).to(torch.float32)
+    data_var = ((sum_x2 / safe_count) - (sum_x / safe_count) ** 2).clamp(min=1e-12)
+    data_std = torch.sqrt(data_var).to(torch.float32)
+
+    # default mean=0, std=1 keeps odd validity channels (1::2) untouched
+    mean = torch.zeros((1, channels, 1, 1), dtype=torch.float32)
+    std = torch.ones((1, channels, 1, 1), dtype=torch.float32)
+    mean[:, 0::2] = data_mean
+    std[:, 0::2] = data_std
+
+    return UnitGaussianNormalizer(mean=mean, std=std)
