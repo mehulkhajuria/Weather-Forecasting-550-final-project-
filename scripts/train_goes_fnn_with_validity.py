@@ -19,12 +19,12 @@ import argparse
 import os.path
 
 parser = argparse.ArgumentParser("train_numerical_model")
-parser.add_argument("train_sample_left_index", help="Left bound (inclusive) of datasets to use for training")
-parser.add_argument("train_sample_right_index", help="Right bound (exclusive) of datasets to use for training")
-parser.add_argument("test_sample_left_index", help="Left bound (inclusive) of datasets to use for testing")
-parser.add_argument("test_sample_right_index", help="Right bound (exclusive) of datasets to use for testing")
-parser.add_argument("save_checkpoint_directory_path", help="Path to save the stored numerical model")
-parser.add_argument("epochs", help="number of epochs to train for")
+parser.add_argument("train_sample_left_index", help="Left bound (inclusive) of datasets to use for training", type=int)
+parser.add_argument("train_sample_right_index", help="Right bound (exclusive) of datasets to use for training", type=int)
+parser.add_argument("test_sample_left_index", help="Left bound (inclusive) of datasets to use for testing", type=int)
+parser.add_argument("test_sample_right_index", help="Right bound (exclusive) of datasets to use for testing", type=int)
+parser.add_argument("save_checkpoint_directory_path", help="Path to save the stored numerical model", type=str)
+parser.add_argument("epochs", help="number of epochs to train for", type=int)
 args = parser.parse_args()
 
 # create a dataset for the training samples
@@ -35,28 +35,27 @@ test_r = args.test_sample_right_index
 ckpt_path = args.save_checkpoint_directory_path
 epochs = args.epochs
 
-train_goes_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(0, 16)).type(torch.FloatTensor)
-train_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(0, 16)).type(torch.FloatTensor)
+train_goes_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(train_l, train_r)).type(torch.FloatTensor)
+train_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(train_l, train_r)).type(torch.FloatTensor)
 print(type(train_goes_sample_tensor), type(train_rain_sample_tensor))
 print("GOES training tensor:", train_goes_sample_tensor.shape, "Rain training tensor:",train_rain_sample_tensor.shape)
 
 train_dataset = NumericalWeatherDataset(train_goes_sample_tensor, train_rain_sample_tensor)
 train_loader = DataLoader(train_dataset)
 train_in_normalizer = provide_normalizer(train_dataset, "x", 1*3*2)
-train_out_normalizer = provide_normalizer(train_dataset, "y", 1*3*2)
+train_out_normalizer = provide_normalizer(train_dataset, "y", 2*2)
 train_data_processor = DefaultDataProcessor(in_normalizer=train_in_normalizer, out_normalizer=train_out_normalizer)
 
-test_numerical_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(16, 20)).type(torch.FloatTensor)
-test_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(16, 20)).type(torch.FloatTensor)
+test_numerical_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(test_l, test_r)).type(torch.FloatTensor)
+test_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(test_l, test_r)).type(torch.FloatTensor)
 print(type(test_numerical_sample_tensor), type(test_rain_sample_tensor))
 print("GOES test tensor:", test_numerical_sample_tensor.shape, "Rain test tensor", test_rain_sample_tensor.shape)
 
 test_dataset = NumericalWeatherDataset(test_numerical_sample_tensor, test_rain_sample_tensor)
 test_loader = DataLoader(test_dataset)
-test_in_normalizer = provide_normalizer(test_dataset, "x", 2*2)
+test_in_normalizer = provide_normalizer(test_dataset, "x", 1*3*2)
 test_out_normalizer = provide_normalizer(test_dataset, "y", 2*2)
 test_data_processor = DefaultDataProcessor(in_normalizer=test_in_normalizer, out_normalizer=test_out_normalizer)
-
 
 # Create the FNO model
 # ----------------------
@@ -127,8 +126,6 @@ trainer = Trainer(
 
 test_loaders = {"one": test_loader}
 print("Training")
-
-#print(train_loader.dataset.__getitem__(0)["y"])
 
 trainer.train(
     train_loader=train_loader,

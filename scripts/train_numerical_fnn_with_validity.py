@@ -21,12 +21,12 @@ import argparse
 import os.path
 
 parser = argparse.ArgumentParser("train_numerical_model")
-parser.add_argument("train_sample_left_index", help="Left bound (inclusive) of datasets to use for training")
-parser.add_argument("train_sample_right_index", help="Right bound (exclusive) of datasets to use for training")
-parser.add_argument("test_sample_left_index", help="Left bound (inclusive) of datasets to use for testing")
-parser.add_argument("test_sample_right_index", help="Right bound (exclusive) of datasets to use for testing")
-parser.add_argument("save_checkpoint_directory_path", help="Path to save the stored numerical model")
-parser.add_argument("epochs", help="number of epochs to train for")
+parser.add_argument("train_sample_left_index", help="Left bound (inclusive) of datasets to use for training", type=int)
+parser.add_argument("train_sample_right_index", help="Right bound (exclusive) of datasets to use for training", type=int)
+parser.add_argument("test_sample_left_index", help="Left bound (inclusive) of datasets to use for testing", type=int)
+parser.add_argument("test_sample_right_index", help="Right bound (exclusive) of datasets to use for testing", type=int)
+parser.add_argument("save_checkpoint_directory_path", help="Path to save the stored numerical model", type=str)
+parser.add_argument("epochs", help="number of epochs to train for", type=int)
 args = parser.parse_args()
 
 # create a dataset for the training samples

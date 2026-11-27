@@ -99,7 +99,7 @@ def get_goes_data_and_validity_ndarray(lbound: int, rbound: int):
 
     #but then fold it back in
     #fold the validity axis back into the channel
-    n, w, v, x, y = np.shape()
+    n, w, v, x, y = np.shape(goes_validity_wrapper)
     goes_validity_wrapper = np.reshape(goes_validity_wrapper, (n, w * v, x, y))
 
 
