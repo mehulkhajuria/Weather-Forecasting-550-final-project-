@@ -10,7 +10,7 @@ from neuralop.data.transforms.data_processors import DefaultDataProcessor
 from neuralop.utils import count_model_params
 from neuralop import H1Loss, LpLoss
 from neuralop.losses.data_losses import MSELoss
-from inspect_processed_data import get_rain_data_and_validity_ndarray, get_numerical_data_and_validity_ndarray, append_numerical_predictions_to_goes, provide_normalizer
+from inspect_processed_data import get_rain_data_and_validity_ndarray, append_numerical_predictions_to_goes, provide_normalizer, MaskedMSELoss
 from weather_dataset import NumericalWeatherDataset
 import argparse
 import os
@@ -96,8 +96,8 @@ scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=30)
 # # We use H1 loss for training and L2 loss for evaluation
 # # H1 loss is particularly good for PDE problems as it penalizes both function values and gradients
 
-train_loss = MSELoss()
-eval_losses = {"MSE" : MSELoss()}
+train_loss = MaskedMSELoss()
+eval_losses = {"MSE" : MaskedMSELoss()}
 
 # # Training the model
 # # ---------------------

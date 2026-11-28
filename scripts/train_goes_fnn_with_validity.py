@@ -4,13 +4,12 @@ import sys
 from torch.utils.data import DataLoader
 from neuralop.models import FNO
 from neuralop import Trainer
-from neuralop.data.transforms.data_processors import DefaultDataProcessor
 from neuralop.training import AdamW
 from neuralop.utils import count_model_params
-from neuralop import H1Loss, LpLoss
 from neuralop.losses.data_losses import MSELoss
-from inspect_processed_data import get_rain_data_and_validity_ndarray, get_goes_data_and_validity_ndarray, provide_normalizer
+from inspect_processed_data import get_rain_data_and_validity_ndarray, get_numerical_data_and_validity_ndarray, provide_normalizer, MaskedMSELoss
 from weather_dataset import NumericalWeatherDataset
+from neuralop.data.transforms.data_processors import DefaultDataProcessor
 
 device = "cpu"
 
@@ -35,37 +34,85 @@ test_r = args.test_sample_right_index
 ckpt_path = args.save_checkpoint_directory_path
 epochs = args.epochs
 
-train_goes_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(train_l, train_r)).type(torch.FloatTensor)
+train_numerical_sample_tensor = torch.from_numpy(get_numerical_data_and_validity_ndarray(train_l, train_r)).type(torch.FloatTensor)
 train_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(train_l, train_r)).type(torch.FloatTensor)
-print(type(train_goes_sample_tensor), type(train_rain_sample_tensor))
-print("GOES training tensor:", train_goes_sample_tensor.shape, "Rain training tensor:",train_rain_sample_tensor.shape)
+print(type(train_numerical_sample_tensor), type(train_rain_sample_tensor))
+print(train_numerical_sample_tensor.shape, train_rain_sample_tensor.shape)
 
-train_dataset = NumericalWeatherDataset(train_goes_sample_tensor, train_rain_sample_tensor)
+train_dataset = NumericalWeatherDataset(train_numerical_sample_tensor, train_rain_sample_tensor)
 train_loader = DataLoader(train_dataset)
-train_in_normalizer = provide_normalizer(train_dataset, "x", 1*3*2)
-train_out_normalizer = provide_normalizer(train_dataset, "y", 2*2)
-train_data_processor = DefaultDataProcessor(in_normalizer=train_in_normalizer, out_normalizer=train_out_normalizer)
 
-test_numerical_sample_tensor = torch.from_numpy(get_goes_data_and_validity_ndarray(test_l, test_r)).type(torch.FloatTensor)
+#create a normalizer for the inputs
+#prevent the validity mask from being normalized
+# validity_preserving_input_normalize_mask = np.array([np.ones((3 * 5, 32, 32)), np.zeros((3 * 5,32,32))])
+# validity_preserving_input_normalize_mask = np.transpose(validity_preserving_input_normalize_mask, (1, 0, 2, 3))
+# attr, v, x, y = np.shape(validity_preserving_input_normalize_mask)
+# validity_preserving_input_normalize_mask = np.reshape(validity_preserving_input_normalize_mask, (attr * v, x, y))
+# validity_preserving_input_normalize_mask = torch.from_numpy(validity_preserving_input_normalize_mask)
+
+train_in_normalizer = provide_normalizer(train_dataset, "x", 3*5*2)
+
+#can't use from_dataset, there is some kind of broadcasting bug that prevent channel variant masks.
+# train_in_normalizer = UnitGaussianNormalizer.from_dataset(
+#     dim=[0, 2, 3],
+#     dataset = train_dataset,
+#     mask = validity_preserving_input_normalize_mask,
+#     keys=["x"]
+# )
+
+#create a normalizer for the outputs
+# validity_preserving_output_normalize_mask = np.array([np.ones((2, 32, 32)), np.zeros((2,32,32))])
+# validity_preserving_output_normalize_mask = np.transpose(validity_preserving_output_normalize_mask, (1, 0, 2, 3))
+# attr, v, x, y = np.shape(validity_preserving_output_normalize_mask)
+# validity_preserving_output_normalize_mask = np.reshape(validity_preserving_output_normalize_mask, (attr * v, x, y))
+# validity_preserving_output_normalize_mask = torch.from_numpy(validity_preserving_output_normalize_mask)
+
+train_out_normalizer = provide_normalizer(train_dataset, "y", 2*2)
+# train_out_normalizer = UnitGaussianNormalizer.from_dataset(
+#     dim=[0, 2, 3],
+#     dataset = train_dataset,
+#     mask = validity_preserving_output_normalize_mask,
+#     keys=["y"]
+# )
+
+
+train_processor = DefaultDataProcessor(in_normalizer=train_in_normalizer, out_normalizer=train_out_normalizer)
+
+#do the same but for the testing data
+
+test_numerical_sample_tensor = torch.from_numpy(get_numerical_data_and_validity_ndarray(test_l, test_r)).type(torch.FloatTensor)
 test_rain_sample_tensor = torch.from_numpy(get_rain_data_and_validity_ndarray(test_l, test_r)).type(torch.FloatTensor)
 print(type(test_numerical_sample_tensor), type(test_rain_sample_tensor))
-print("GOES test tensor:", test_numerical_sample_tensor.shape, "Rain test tensor", test_rain_sample_tensor.shape)
+print(test_numerical_sample_tensor.shape, test_rain_sample_tensor.shape)
 
 test_dataset = NumericalWeatherDataset(test_numerical_sample_tensor, test_rain_sample_tensor)
 test_loader = DataLoader(test_dataset)
-test_in_normalizer = provide_normalizer(test_dataset, "x", 1*3*2)
-test_out_normalizer = provide_normalizer(test_dataset, "y", 2*2)
-test_data_processor = DefaultDataProcessor(in_normalizer=test_in_normalizer, out_normalizer=test_out_normalizer)
+
+test_in_normalizer = provide_normalizer(test_dataset, "x", 30)
+# test_in_normalizer = UnitGaussianNormalizer.from_dataset(
+#     dim=[0, 2, 3],
+#     dataset = test_dataset,
+#     mask = validity_preserving_input_normalize_mask,
+#     keys=["x"]
+# )
+
+test_in_normalizer = provide_normalizer(test_dataset, "y", 4)
+# test_out_normalizer = UnitGaussianNormalizer.from_dataset(
+#     dim=[0, 2, 3],
+#     dataset = test_dataset,
+#     mask = validity_preserving_output_normalize_mask,
+#     keys=["y"]
+# )
 
 # Create the FNO model
 # ----------------------
 
 model = FNO(
-    n_modes=(12, 12),   #this tuple has to be as long as the spatiotemporal axes
-    in_channels=1*3*2,     # = satelite heat * time interval * validity - number of input variables
-    out_channels=2*2,     # = rain interval * validity - number of output variables
+    n_modes=(12, 12),   #this tuple has to be as long as the temporal axes
+    in_channels=3*5*2,     # = length of input channel - 3 intervals * 5 attributes * infolded value/validity dimension
+    out_channels=2*2,     # = number of output variables - 2 intervals * infolded value/validity dimension
     hidden_channels=32,     # hyperparameter
-    positional_embedding="grid"  #ABSOLUTELY FIX THIS LATER
+    positional_embedding="grid"  #ABSOLUTELY FIX THIS LATER?
 )
 model = model.to(device)
 
@@ -75,20 +122,14 @@ print(f"\nOur model has {n_params} parameters.")
 sys.stdout.flush()
 
 
-
 # # Creating the optimizer and scheduler
 # # ------------------------------------
 # # We use AdamW optimizer with weight decay for regularization
 optimizer = AdamW(model.parameters(), lr=1e-2, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=30)
 
-# # Setting up loss functions
-# # -------------------------
-# # We use H1 loss for training and L2 loss for evaluation
-# # H1 loss is particularly good for PDE problems as it penalizes both function values and gradients
-
-train_loss = MSELoss()
-eval_losses = {"MSE": train_loss }
+train_loss = MaskedMSELoss()
+eval_losses = {"MSE": MaskedMSELoss() }
 
 # # Training the model
 # # ---------------------
@@ -109,7 +150,7 @@ trainer = Trainer(
     model=model,
     n_epochs=epochs,
     device=device,
-    data_processor=train_data_processor,
+    data_processor= train_processor,
     wandb_log=False,  # Disable Weights & Biases logging for this tutorial
     eval_interval=5,  # Evaluate every 5 epochs
     use_distributed=False,  # Single GPU/CPU training
@@ -138,6 +179,7 @@ trainer.train(
 )
 
 model.save_checkpoint(os.path.dirname(ckpt_path), os.path.basename(ckpt_path))
+
 
 # Visualizing predictions
 # ------------------------

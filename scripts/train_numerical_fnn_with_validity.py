@@ -9,7 +9,7 @@ from neuralop.training import AdamW
 from neuralop.utils import count_model_params
 from neuralop import H1Loss, LpLoss
 from neuralop.losses.data_losses import MSELoss
-from inspect_processed_data import get_rain_data_and_validity_ndarray, get_numerical_data_and_validity_ndarray, provide_normalizer
+from inspect_processed_data import get_rain_data_and_validity_ndarray, get_numerical_data_and_validity_ndarray, provide_normalizer, MaskedMSELoss
 from weather_dataset import NumericalWeatherDataset
 from neuralop.data.transforms.normalizers import UnitGaussianNormalizer
 from neuralop.data.transforms.data_processors import DefaultDataProcessor
@@ -131,8 +131,8 @@ sys.stdout.flush()
 optimizer = AdamW(model.parameters(), lr=1e-2, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=30)
 
-train_loss = MSELoss()
-eval_losses = {"MSE": MSELoss() }
+train_loss = MaskedMSELoss()
+eval_losses = {"MSE": MaskedMSELoss() }
 
 # # Training the model
 # # ---------------------

@@ -1,3 +1,6 @@
+from typing import List
+import warnings
+
 import numpy as np
 import torch
 from torch import Tensor
@@ -111,7 +114,11 @@ def append_numerical_predictions_to_goes(model : FNO, lbound: int, rbound:int) -
     goes_with_validity = torch.from_numpy(get_goes_data_and_validity_ndarray(lbound, rbound))
     model_input = torch.from_numpy(get_numerical_data_and_validity_ndarray(lbound,rbound))
 
+    # discard numerical model's mask field when using its output
     numerical_predictions = torch.cat([model(sample.unsqueeze(0)) for sample in model_input]).detach()
+    n, c, x, y = numerical_predictions.shape
+    numerical_prediction_mask = torch.tensor([x % 2 == 0 for x in range(0, c)])
+    numerical_predictions = numerical_predictions[:, numerical_prediction_mask,  :, :]
 
     #we expect numerical_predictions to be (n_samples)->(forecast (2) * validity (2))->(grid_x)->(grid_y)
     merged_tensor = torch.cat((goes_with_validity, numerical_predictions), dim=1)
@@ -153,4 +160,46 @@ def provide_normalizer(dataset : Dataset, key : str, channels : int):
     std[:, 0::2] = data_std
 
     return UnitGaussianNormalizer(mean=mean, std=std)
+
+class MaskedMSELoss(object):
+    """Masked Mean-squared L2 error between two tensors - filter is "every other row" in the channel axis.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def __call__(self, y_pred: torch.Tensor, y: torch.Tensor, dim: List[int] = None, **kwargs):
+        """Masked MSE loss call
+
+        Parameters
+        ----------
+        y_pred : torch.Tensor
+            tensor of predictions
+        y : torch.Tensor
+            ground truth, must be same shape as y_pred
+        dim : List[int], optional
+            dimensions across which to compute MSE, by default None
+        """
+        if kwargs:
+            warnings.warn(
+                f"MaskedMSELoss.__call__() received unexpected keyword arguments: {list(kwargs.keys())}. "
+                "These arguments will be ignored.",
+                UserWarning,
+                stacklevel=2
+            )
+        assert y_pred.shape == y.shape, (y.shape, y_pred.shape)
+        if dim is None:
+            dim = list(range(1, y_pred.ndim)) # no reduction across batch dim
+
+        #remove the validity maps themselves so they won't be used in calculating loss
+        s, c, xd, yd = y.shape
+        data_mask = torch.tensor([x % 2 == 0 for x in range(0, c)])
+        y_val = y[:, data_mask, :, :]
+        y_pred_val = y_pred[:, data_mask, :, :]
+
+        #find how many valid values there are
+        valid_mask = torch.tensor([x % 2 == 1 for x in range(0, c)])
+        y_valid = y[:, valid_mask, :, :]
+
+        return (((y_pred_val - y_val) ** 2) / y_valid.sum()).sum()
 
