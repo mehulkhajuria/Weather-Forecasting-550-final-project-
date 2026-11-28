@@ -50,7 +50,7 @@ print(augmented_goes_train_tensor.shape, train_rain_sample_tensor.shape)
 
 train_dataset = NumericalWeatherDataset(augmented_goes_train_tensor, train_rain_sample_tensor)
 train_loader = DataLoader(train_dataset)
-train_in_normalizer = provide_normalizer(train_dataset, "x", 3 * 2 + 2 * 2)
+train_in_normalizer = provide_normalizer(train_dataset, "x", 3 * 2 + 2)
 train_out_normalizer = provide_normalizer(train_dataset, "y", 2*2)
 train_data_processor = DefaultDataProcessor(in_normalizer=train_in_normalizer, out_normalizer=train_out_normalizer)
 
@@ -60,7 +60,7 @@ print(augmented_goes_test_tensor.shape, test_rain_sample_tensor.shape)
 
 test_dataset = NumericalWeatherDataset(augmented_goes_test_tensor, test_rain_sample_tensor)
 test_loader = DataLoader(test_dataset)
-test_in_normalizer = provide_normalizer(test_dataset, "x", 3*2+2*2)
+test_in_normalizer = provide_normalizer(test_dataset, "x", 3*2+2)
 test_out_normalizer = provide_normalizer(test_dataset, "y", 2*2)
 test_data_processor = DefaultDataProcessor(in_normalizer=test_in_normalizer, out_normalizer=test_out_normalizer)
 
@@ -69,7 +69,7 @@ test_data_processor = DefaultDataProcessor(in_normalizer=test_in_normalizer, out
 
 model = FNO(
     n_modes=(12, 12),           #this tuple has to be as long as the spatiotemporal axes
-    in_channels=1*3*2+2*2,      # temperature * history_interval * goes validity * numerical prediction * numerical validity 
+    in_channels=1*3*2+2,      # temperature * history_interval * goes validity * numerical prediction * numerical validity 
                                 # = number of input variables
     out_channels=2*2,             # = number of output variables
     hidden_channels=32,         # hyperparameter
@@ -135,8 +135,6 @@ trainer = Trainer(
 
 test_loaders = {"one": test_loader}
 print("Training")
-
-#print(train_loader.dataset.__getitem__(0)["y"])
 
 trainer.train(
     train_loader=train_loader,

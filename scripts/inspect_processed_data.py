@@ -197,9 +197,9 @@ class MaskedMSELoss(object):
         y_val = y[:, data_mask, :, :]
         y_pred_val = y_pred[:, data_mask, :, :]
 
+
         #find how many valid values there are
         valid_mask = torch.tensor([x % 2 == 1 for x in range(0, c)])
         y_valid = y[:, valid_mask, :, :]
 
         return (((y_pred_val - y_val) ** 2) / y_valid.sum()).sum()
-
