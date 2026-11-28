@@ -1,8 +1,10 @@
 import numpy as np
 import torch
+from torch import Tensor
 from neuralop.data.transforms.normalizers import UnitGaussianNormalizer
 from torch.utils.data.dataset import Dataset
 import sys
+from neuralop import FNO
 
 # with np.load('data/processed/supervised.npz', allow_pickle=False) as data:
 #     X_goes = data['X_goes']
@@ -105,6 +107,16 @@ def get_goes_data_and_validity_ndarray(lbound: int, rbound: int):
 
     print("Returning GOES + validity", np.shape(goes_validity_wrapper))
     return goes_validity_wrapper
+
+def append_numerical_predictions_to_goes(model : FNO, lbound: int, rbound:int) -> Tensor:
+    goes_with_validity = get_goes_data_and_validity_ndarray(lbound, rbound)
+    model_input = torch.from_numpy(get_numerical_data_and_validity_ndarray(lbound,rbound))
+
+    numerical_predictions = torch.stack([model(sample) for sample in model_input])
+    #we expect numerical_predictions to be (n_samples)->(forecast (2) * validity (2))->(grid_x)->(grid_y)
+    merged_tensor = torch.cat((goes_with_validity, numerical_predictions), dim=1)
+    
+    return merged_tensor
 
 def provide_normalizer(dataset : Dataset, key : str, channels : int):
     #there is a quirk with the UnitGaussianNormalizer library
