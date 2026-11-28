@@ -104,18 +104,19 @@ def get_goes_data_and_validity_ndarray(lbound: int, rbound: int):
     n, w, v, x, y = np.shape(goes_validity_wrapper)
     goes_validity_wrapper = np.reshape(goes_validity_wrapper, (n, w * v, x, y))
 
-
     print("Returning GOES + validity", np.shape(goes_validity_wrapper))
     return goes_validity_wrapper
 
 def append_numerical_predictions_to_goes(model : FNO, lbound: int, rbound:int) -> Tensor:
-    goes_with_validity = get_goes_data_and_validity_ndarray(lbound, rbound)
+    goes_with_validity = torch.from_numpy(get_goes_data_and_validity_ndarray(lbound, rbound))
     model_input = torch.from_numpy(get_numerical_data_and_validity_ndarray(lbound,rbound))
 
-    numerical_predictions = torch.stack([model(sample) for sample in model_input])
+    numerical_predictions = torch.cat([model(sample.unsqueeze(0)) for sample in model_input]).detach()
+
     #we expect numerical_predictions to be (n_samples)->(forecast (2) * validity (2))->(grid_x)->(grid_y)
     merged_tensor = torch.cat((goes_with_validity, numerical_predictions), dim=1)
-    
+
+    #thus the merged tensor is (n_samples)->(temperature (3) * validity(2) + numerical predict (2) * validity(2))->x->y
     return merged_tensor
 
 def provide_normalizer(dataset : Dataset, key : str, channels : int):
@@ -152,3 +153,4 @@ def provide_normalizer(dataset : Dataset, key : str, channels : int):
     std[:, 0::2] = data_std
 
     return UnitGaussianNormalizer(mean=mean, std=std)
+

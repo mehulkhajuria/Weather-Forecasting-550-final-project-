@@ -193,42 +193,42 @@ model.save_checkpoint(os.path.dirname(ckpt_path), os.path.basename(ckpt_path))
 # a very small number of epochs. In practice, we would train at a larger
 # resolution on many more samples.
 
-test_samples = test_loaders["one"].dataset
+# test_samples = test_loaders["one"].dataset
 
-fig = plt.figure(figsize=(7, 7))
-for index in range(3):
-    data = test_samples[index]
-    # Input
-    x = data["x"]
-    # Ground-truth output
-    y = data["y"]
-    # Model prediction
-    out = model(x.unsqueeze(0))
+# fig = plt.figure(figsize=(7, 7))
+# for index in range(3):
+#     data = test_samples[index]
+#     # Input
+#     x = data["x"]
+#     # Ground-truth output
+#     y = data["y"]
+#     # Model prediction
+#     out = model(x.unsqueeze(0))
 
-    # # Plot input
-    # ax = fig.add_subplot(3, 3, index * 3 + 1)
-    # ax.imshow(x[0], cmap="gray")
-    # if index == 0:
-    #     ax.set_title("Input x")
-    # plt.xticks([], [])
-    # plt.yticks([], [])
+#     # # Plot input
+#     # ax = fig.add_subplot(3, 3, index * 3 + 1)
+#     # ax.imshow(x[0], cmap="gray")
+#     # if index == 0:
+#     #     ax.set_title("Input x")
+#     # plt.xticks([], [])
+#     # plt.yticks([], [])
 
-    # Plot ground-truth output
-    # ax = fig.add_subplot(3, 3, index * 3 + 2)
-    # ax.imshow(y.squeeze())
-    # if index == 0:
-    #     ax.set_title("Ground-truth output")
-    # plt.xticks([], [])
-    # plt.yticks([], [])
+#     # Plot ground-truth output
+#     # ax = fig.add_subplot(3, 3, index * 3 + 2)
+#     # ax.imshow(y.squeeze())
+#     # if index == 0:
+#     #     ax.set_title("Ground-truth output")
+#     # plt.xticks([], [])
+#     # plt.yticks([], [])
 
-    # Plot model prediction
-    # ax = fig.add_subplot(3, 3, index * 3 + 3)
-    # ax.imshow(out.squeeze().detach().numpy())
-    # if index == 0:
-    #     ax.set_title("Model prediction")
-    # plt.xticks([], [])
-    # plt.yticks([], [])
+#     # Plot model prediction
+#     # ax = fig.add_subplot(3, 3, index * 3 + 3)
+#     # ax.imshow(out.squeeze().detach().numpy())
+#     # if index == 0:
+#     #     ax.set_title("Model prediction")
+#     # plt.xticks([], [])
+#     # plt.yticks([], [])
 
-# fig.suptitle("FNO predictions on 16x16 Darcy-Flow data", y=0.98)
-# plt.tight_layout()
-# fig.show()
+# # fig.suptitle("FNO predictions on 16x16 Darcy-Flow data", y=0.98)
+# # plt.tight_layout()
+# # fig.show()
